@@ -1,5 +1,6 @@
 package de.pschiessle.xlight.xserver.components;
 
+import java.util.Objects;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,11 +14,32 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "mts_lightstates")
-public class MtsLightState extends BaseEntity{
-    @NonNull
-    @Column(name = "modeId")
-    private long modeId;
+public class MtsLightState extends BaseEntity {
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<MtsValue> values;
+  @Column(name = "modeId")
+  private long modeId;
+
+  @OneToMany(cascade = CascadeType.ALL)
+  private List<MtsValue> values;
+
+  @OneToOne(mappedBy = "state")
+  private MtsLight light;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MtsLightState that = (MtsLightState) o;
+    return modeId == that.modeId && Objects.equals(values, that.values)
+        && Objects.equals(light, that.light);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(modeId, values, light);
+  }
 }
