@@ -3,10 +3,13 @@ package de.pschiessle.xlight.xserver.controller;
 import de.pschiessle.xlight.xserver.components.MtsLight;
 import de.pschiessle.xlight.xserver.components.MtsLightState;
 import de.pschiessle.xlight.xserver.components.MtsMode;
+import de.pschiessle.xlight.xserver.components.MtsValue;
+import de.pschiessle.xlight.xserver.exceptions.IndexMissmatchException;
 import de.pschiessle.xlight.xserver.exceptions.NoSufficientDataException;
 import de.pschiessle.xlight.xserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xserver.services.MtsLightService;
 import de.pschiessle.xlight.xserver.services.MtsLightStateService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,12 +40,12 @@ public class MtsLightController {
     }
   }
 
-  @PutMapping("/light/state/set")
-  public ResponseEntity<MtsLightState> setModeToState(@RequestBody MtsLightState state) {
+  @PutMapping("/light/state/{modeId}/set")
+  public ResponseEntity<MtsLightState> setModeToState(@PathVariable long modeId, @RequestBody List<MtsValue> values) {
     try {
-      MtsLightState curState = mtsLightStateService.updateMtsLightState(state);
+      MtsLightState curState = mtsLightStateService.updateMtsLightState(modeId, values);
       return new ResponseEntity<>(curState, HttpStatus.CREATED);
-    } catch (Exception e) {
+    } catch (IndexMissmatchException e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

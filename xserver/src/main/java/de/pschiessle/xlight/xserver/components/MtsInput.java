@@ -42,12 +42,4 @@ public class MtsInput extends BaseEntity {
         return Objects.hash(inputType, jsonKey, uiLabel);
     }
 
-    @Override
-    public String toString() {
-        return "MtsInput{" +
-                "inputType=" + inputType +
-                ", jsonKey='" + jsonKey + '\'' +
-                ", uiLabel='" + uiLabel + '\'' +
-                '}';
-    }
 }

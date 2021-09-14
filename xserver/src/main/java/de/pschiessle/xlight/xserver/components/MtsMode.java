@@ -16,11 +16,9 @@ import java.util.Objects;
 @Table(name = "mts_modes")
 public class MtsMode extends BaseEntity {
 
-    @NonNull
     @Column(name = "mode_id", unique = true)
     private long modeId;
 
-    @NonNull
     @Column(name = "change_date_utc")
     private long changeDateUTC;
 
@@ -38,14 +36,5 @@ public class MtsMode extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(modeId, changeDateUTC);
-    }
-
-    @Override
-    public String toString() {
-        return "MtsMode{" +
-                "modeId=" + modeId +
-                ", changeDateUTC=" + changeDateUTC +
-                ", inputs=" + inputs +
-                '}';
     }
 }

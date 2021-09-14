@@ -1,6 +1,8 @@
 package de.pschiessle.xlight.xserver.components;
 
+import java.math.BigDecimal;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -23,7 +25,7 @@ public class MtsValue extends BaseEntity {
 
     @ElementCollection
     @Column(name = "values")
-    private List<Integer> values;
+    private List<BigDecimal> values;
 
     @Override
     public boolean equals(Object o) {
