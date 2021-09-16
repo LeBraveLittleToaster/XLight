@@ -19,6 +19,9 @@ public class MtsMode extends BaseEntity {
     @Column(name = "mode_id", unique = true)
     private long modeId;
 
+    @Column(name = "mode_name")
+    private String name;
+
     @Column(name = "change_date_utc")
     private long changeDateUTC;
 
@@ -27,14 +30,20 @@ public class MtsMode extends BaseEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MtsMode mtsMode = (MtsMode) o;
-        return modeId == mtsMode.modeId && Objects.equals(changeDateUTC, mtsMode.changeDateUTC);
+        return modeId == mtsMode.modeId && changeDateUTC == mtsMode.changeDateUTC
+            && Objects.equals(name, mtsMode.name) && Objects.equals(inputs,
+            mtsMode.inputs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(modeId, changeDateUTC);
+        return Objects.hash(modeId, name, changeDateUTC, inputs);
     }
 }

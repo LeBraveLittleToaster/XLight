@@ -3,6 +3,7 @@ package de.pschiessle.xlight.xserver.controller;
 import de.pschiessle.xlight.xserver.components.MtsMode;
 import de.pschiessle.xlight.xserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xserver.services.MtsModeService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,20 @@ public class MtsModeController {
         this.mtsModeService = mtsModeService;
     }
 
+    @GetMapping("/modes")
+    public ResponseEntity<List<MtsMode>> getModes(){
+        try {
+            List<MtsMode> _modes = mtsModeService.getModes();
+            return new ResponseEntity<>(_modes, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/modes/create")
     public ResponseEntity<MtsMode> createMode(@RequestBody MtsMode mtsMode) {
         try {
-            MtsMode _mode = mtsModeService.createMode(mtsMode.getModeId(), mtsMode.getInputs());
+            MtsMode _mode = mtsModeService.createMode(mtsMode.getModeId(), mtsMode.getName(), mtsMode.getInputs());
             return new ResponseEntity<>(_mode, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

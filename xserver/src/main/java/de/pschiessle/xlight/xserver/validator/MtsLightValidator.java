@@ -6,8 +6,10 @@ import de.pschiessle.xlight.xserver.exceptions.NoSufficientDataException;
 import java.util.ArrayList;
 
 public class MtsLightValidator {
+
   public static MtsLight validateAddLightObj(MtsLight light) throws NoSufficientDataException {
-    if(light.getName() == null || light.getLocation() == null || light.getMac() == null){
+    if (light.getName().equals("") || light.getLocation().equals("") || light.getMac().equals("")
+        || light.getSupportedModes() == null) {
       throw new NoSufficientDataException("Name, Location or mac address empty");
     }
     light.setOn(false);

@@ -22,9 +22,6 @@ public class MtsLightState extends BaseEntity {
   @OneToMany(cascade = CascadeType.ALL)
   private List<MtsValue> values;
 
-  @OneToOne(mappedBy = "state")
-  private MtsLight light;
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -34,12 +31,11 @@ public class MtsLightState extends BaseEntity {
       return false;
     }
     MtsLightState that = (MtsLightState) o;
-    return modeId == that.modeId && Objects.equals(values, that.values)
-        && Objects.equals(light, that.light);
+    return modeId == that.modeId && Objects.equals(values, that.values);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(modeId, values, light);
+    return Objects.hash(modeId, values);
   }
 }

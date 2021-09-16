@@ -30,7 +30,17 @@ public class MtsLightController {
     this.mtsLightStateService = mtsLightStateService;
   }
 
-  @PostMapping("/light/add")
+  @GetMapping("/lights")
+  public ResponseEntity<List<MtsLight>> getLights(){
+    try {
+      List<MtsLight> _lights = mtsLightService.getLights();
+      return new ResponseEntity<>(_lights, HttpStatus.CREATED);
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/lights/add")
   public ResponseEntity<MtsLight> addLight(@RequestBody MtsLight mtsLight) {
     try {
       MtsLight _light = mtsLightService.createLight(mtsLight);
@@ -40,7 +50,7 @@ public class MtsLightController {
     }
   }
 
-  @PutMapping("/light/state/{modeId}/set")
+  @PutMapping("/lights/state/{modeId}/set")
   public ResponseEntity<MtsLightState> setModeToState(@PathVariable long modeId, @RequestBody List<MtsValue> values) {
     try {
       MtsLightState curState = mtsLightStateService.updateMtsLightState(modeId, values);

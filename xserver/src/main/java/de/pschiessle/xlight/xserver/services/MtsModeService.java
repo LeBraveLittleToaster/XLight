@@ -16,7 +16,11 @@ public class MtsModeService {
     this.mtsModeRepository = mtsModeRepository;
   }
 
-  public MtsMode createMode(long modeId, List<MtsInput> inputs) throws IllegalArgumentException{
-    return mtsModeRepository.save(new MtsMode(modeId, Instant.now().toEpochMilli(), inputs));
+  public MtsMode createMode(long modeId, String name, List<MtsInput> inputs) throws IllegalArgumentException{
+    return mtsModeRepository.save(new MtsMode(modeId, name ,Instant.now().toEpochMilli(), inputs));
+  }
+
+  public List<MtsMode> getModes() {
+    return mtsModeRepository.findAll();
   }
 }

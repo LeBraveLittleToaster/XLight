@@ -18,7 +18,9 @@ import de.pschiessle.xlight.xserver.services.MtsLightService;
 import de.pschiessle.xlight.xserver.services.MtsLightStateService;
 import de.pschiessle.xlight.xserver.services.MtsModeService;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -67,10 +69,12 @@ class XserverApplicationTests {
   void savingLightAndStateTest()
       throws NoSufficientDataException, IndexMissmatchException {
     //from API
+    List<Long> supportedModes = List.of(0L, 1L,2L,5L);
     MtsLight light = new MtsLight();
     light.setName("SomeName");
     light.setLocation("SomeLocation");
     light.setMac("SomeMac");
+    light.setSupportedModes(supportedModes);
 
     MtsLight insertedLight = mtsLightService.createLight(light);
     System.out.println("LightId=" + light.getId());
@@ -78,13 +82,13 @@ class XserverApplicationTests {
 
     assertEquals(insertedLight, foundLight);
 
-    MtsMode mode0 = mtsModeService.createMode(0, List.of(
+    MtsMode mode0 = mtsModeService.createMode(0, "name0", List.of(
         new MtsInput(InputType.HSVB, "json1", "ui1"),
         new MtsInput(InputType.SINGLE_DOUBLE, "json1_0", "ui1_0"),
         new MtsInput(InputType.RANGE_2_DOUBLE, "json2_0", "ui2_0")
     ));
     System.out.println("Created mode0=" + mode0.toString());
-    MtsMode mode1 = mtsModeService.createMode(1, List.of(
+    MtsMode mode1 = mtsModeService.createMode(1, "name1", List.of(
         new MtsInput(InputType.HSVB, "json11", "ui11"),
         new MtsInput(InputType.RANGE_2_DOUBLE, "json11", "ui11"),
         new MtsInput(InputType.SINGLE_DOUBLE, "json21", "ui21"),

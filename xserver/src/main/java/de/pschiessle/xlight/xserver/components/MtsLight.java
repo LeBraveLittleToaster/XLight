@@ -1,5 +1,8 @@
 package de.pschiessle.xlight.xserver.components;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.*;
 
@@ -27,9 +30,13 @@ public class MtsLight extends BaseEntity {
   @Column(name = "mac")
   private String mac;
 
+  @JsonProperty(value = "isOn") // for deserialization
   @Column(name = "is_on")
   private boolean isOn;
 
+  @ElementCollection
+  @Column(name="supported_modes")
+  private List<Long> supportedModes;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "fk_mts_lights")
