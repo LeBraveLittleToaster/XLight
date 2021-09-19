@@ -10,6 +10,7 @@ import de.pschiessle.xlight.xserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xserver.services.MtsLightService;
 import de.pschiessle.xlight.xserver.services.MtsLightStateService;
 import java.util.List;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,12 +51,18 @@ public class MtsLightController {
     }
   }
 
-  @PutMapping("/lights/state/{modeId}/set")
-  public ResponseEntity<MtsLightState> setModeToState(@PathVariable long modeId, @RequestBody List<MtsValue> values) {
+  @PutMapping("/lights/{lightId}/set")
+  public ResponseEntity<Void> setLightIsOn(@PathVariable long lightId, @RequestParam boolean isOn){
+    mtsLightService.setLightIsOn(lightId, isOn);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PutMapping("/lights/{lightId}/state/{modeId}/set")
+  public ResponseEntity<MtsLightState> setModeToState(@PathVariable long modeId,@PathVariable long lightId, @RequestBody List<MtsValue> values) {
     try {
-      MtsLightState curState = mtsLightStateService.updateMtsLightState(modeId, values);
+      MtsLightState curState = mtsLightStateService.updateMtsLightState(lightId, modeId, values);
       return new ResponseEntity<>(curState, HttpStatus.CREATED);
-    } catch (IndexMissmatchException e) {
+    } catch (IndexMissmatchException | NotFoundException e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

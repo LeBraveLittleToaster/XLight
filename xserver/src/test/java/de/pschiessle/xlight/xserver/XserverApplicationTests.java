@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 
 @SpringBootTest
 class XserverApplicationTests {
@@ -67,7 +68,7 @@ class XserverApplicationTests {
 
   @Test
   void savingLightAndStateTest()
-      throws NoSufficientDataException, IndexMissmatchException {
+      throws NoSufficientDataException, IndexMissmatchException, NotFoundException {
     //from API
     List<Long> supportedModes = List.of(0L, 1L,2L,5L);
     MtsLight light = new MtsLight();
@@ -96,7 +97,7 @@ class XserverApplicationTests {
     ));
     System.out.println("Created mode1=" + mode1.toString());
 
-    MtsLightState state = mtsLightStateService.updateMtsLightState(0, List.of(
+    MtsLightState state = mtsLightStateService.updateMtsLightState(insertedLight.getId(), 1, List.of(
         new MtsValue(0L, generateRandomList(4)),
         new MtsValue(1L, generateRandomList(2)),
         new MtsValue(2L, generateRandomList(1)),
@@ -128,10 +129,11 @@ class XserverApplicationTests {
     return Stream.iterate(0, n -> n + 1)
         .limit(size)
         .map(e -> {
-          BigDecimal v = BigDecimal.valueOf(random.nextDouble());
+          BigDecimal v = BigDecimal.valueOf(random.nextDouble() * 255);
           System.out.println(v);
           return v;
         })
+        .sorted()
         .collect(Collectors.toList());
   }
 }

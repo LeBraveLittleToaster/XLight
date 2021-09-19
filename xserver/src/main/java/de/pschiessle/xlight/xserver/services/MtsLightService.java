@@ -8,6 +8,7 @@ import de.pschiessle.xlight.xserver.validator.MtsLightValidator;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MtsLightService {
@@ -36,4 +37,8 @@ public class MtsLightService {
         .orElseThrow(() -> new EntityNotFoundException("No light with id=" + lightId + " found"));
   }
 
+  @Transactional
+  public void setLightIsOn(long lightId, boolean isOn) {
+    lightRepository.setLightIsOn(isOn, lightId);
+  }
 }

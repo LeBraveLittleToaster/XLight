@@ -1,14 +1,17 @@
 package de.pschiessle.xlight.xserver.services;
 
+import de.pschiessle.xlight.xserver.components.MtsLight;
 import de.pschiessle.xlight.xserver.components.MtsLightState;
 import de.pschiessle.xlight.xserver.components.MtsMode;
 import de.pschiessle.xlight.xserver.components.MtsValue;
 import de.pschiessle.xlight.xserver.exceptions.IndexMissmatchException;
+import de.pschiessle.xlight.xserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xserver.repositories.MtsLightStateRepository;
 import de.pschiessle.xlight.xserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xserver.validator.MtsLightStateValidator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,22 +20,28 @@ public class MtsLightStateService {
 
   final MtsLightStateRepository mtsLightStateRepository;
   final MtsModeRepository mtsModeRepository;
+  final MtsLightRepository mtsLightRepository;
 
   public MtsLightStateService(MtsLightStateRepository mtsLightStateRepository,
-      MtsModeRepository mtsModeRepository) {
+      MtsModeRepository mtsModeRepository,
+      MtsLightRepository mtsLightRepository) {
     this.mtsLightStateRepository = mtsLightStateRepository;
     this.mtsModeRepository = mtsModeRepository;
+    this.mtsLightRepository = mtsLightRepository;
   }
 
   @Transactional
-  public MtsLightState updateMtsLightState(long modeId, List<MtsValue> values)
-      throws IndexMissmatchException {
+  public MtsLightState updateMtsLightState(long lightId, long modeId, List<MtsValue> values)
+      throws IndexMissmatchException, NotFoundException {
     MtsMode mtsMode = mtsModeRepository.findMtsModeByModeId(modeId);
     if (mtsMode == null) {
       throw new NullPointerException("MtsMode not found for modeId=" + modeId);
     }
     MtsLightState state = MtsLightStateValidator.validateInsertLightState(mtsMode, values);
-    return this.mtsLightStateRepository.save(state);
+    MtsLight light = mtsLightRepository.findById(lightId).orElseThrow(NotFoundException::new);
+    light.setState(state);
+    MtsLight savedLight = this.mtsLightRepository.save(light);
+    return savedLight.getState();
   }
 
   @Transactional(readOnly = true)

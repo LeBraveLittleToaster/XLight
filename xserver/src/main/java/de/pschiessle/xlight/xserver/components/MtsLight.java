@@ -38,7 +38,7 @@ public class MtsLight extends BaseEntity {
   @Column(name="supported_modes")
   private List<Long> supportedModes;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "fk_mts_lights")
   private MtsLightState state;
 
