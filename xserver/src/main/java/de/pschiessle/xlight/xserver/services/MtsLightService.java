@@ -5,16 +5,20 @@ import de.pschiessle.xlight.xserver.exceptions.NoSufficientDataException;
 import de.pschiessle.xlight.xserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xserver.repositories.MtsLightStateRepository;
 import de.pschiessle.xlight.xserver.validator.MtsLightValidator;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MtsLightService {
 
   final MtsLightRepository lightRepository;
   final MtsLightStateRepository mtsLightStateRepository;
+
 
   public MtsLightService(MtsLightRepository lightRepository,
       MtsLightStateRepository mtsLightStateRepository) {
@@ -40,5 +44,10 @@ public class MtsLightService {
   @Transactional
   public void setLightIsOn(long lightId, boolean isOn) {
     lightRepository.setLightIsOn(isOn, lightId);
+  }
+
+  @Transactional
+  public void setLightPicture(long lightId, byte[] image) throws IOException {
+  lightRepository.setLightPicture(image, lightId);
   }
 }

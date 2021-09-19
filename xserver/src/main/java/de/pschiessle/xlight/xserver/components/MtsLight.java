@@ -1,12 +1,24 @@
 package de.pschiessle.xlight.xserver.components;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.sql.Blob;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -34,8 +46,12 @@ public class MtsLight extends BaseEntity {
   @Column(name = "is_on")
   private boolean isOn;
 
+  @Lob
+  @Column(name = "picture")
+  private byte[] picture;
+
   @ElementCollection
-  @Column(name="supported_modes")
+  @Column(name = "supported_modes")
   private List<Long> supportedModes;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,7 +67,7 @@ public class MtsLight extends BaseEntity {
       return false;
     }
     MtsLight mtsLight = (MtsLight) o;
-    return  name.equals(mtsLight.name) && location.equals(mtsLight.location)
+    return name.equals(mtsLight.name) && location.equals(mtsLight.location)
         && mac.equals(mtsLight.mac);
   }
 
