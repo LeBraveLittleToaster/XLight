@@ -1,7 +1,6 @@
 package de.pschiessle.xlight.xserver.components;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.sql.Blob;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -9,7 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -57,6 +58,13 @@ public class MtsLight extends BaseEntity {
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "fk_mts_lights")
   private MtsLightState state;
+
+  @ManyToMany(cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "mts_light_control_groups_mapping",
+      joinColumns = @JoinColumn(name = "light_id"),
+      inverseJoinColumns = @JoinColumn(name = "control_group_id"))
+  List<MtsControlGroup> controlGroups;
 
   @Override
   public boolean equals(Object o) {

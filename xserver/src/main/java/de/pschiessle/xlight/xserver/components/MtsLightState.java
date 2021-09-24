@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
+import lombok.ToString.Exclude;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class MtsLightState extends BaseEntity {
   private long modeId;
 
   @OneToMany(cascade = CascadeType.ALL)
+  @Exclude
   private List<MtsValue> values;
 
   @Override

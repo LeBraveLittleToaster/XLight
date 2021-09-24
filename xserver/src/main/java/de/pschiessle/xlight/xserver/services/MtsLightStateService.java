@@ -11,6 +11,7 @@ import de.pschiessle.xlight.xserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xserver.validator.MtsLightStateValidator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,21 @@ public class MtsLightStateService {
     light.setState(state);
     MtsLight savedLight = this.mtsLightRepository.save(light);
     return savedLight.getState();
+  }
+
+  @Transactional
+  public List<MtsLightState> updateMtsLightStates(List<Long> lightIds, long modeId, List<MtsValue> values)
+      throws IndexMissmatchException, NotFoundException {
+    MtsMode mtsMode = mtsModeRepository.findMtsModeByModeId(modeId);
+    if (mtsMode == null) {
+      throw new NullPointerException("MtsMode not found for modeId=" + modeId);
+    }
+    MtsLightState state = MtsLightStateValidator.validateInsertLightState(mtsMode, values);
+
+    List<MtsLight> lights = mtsLightRepository.findAllById(lightIds);
+    lights.forEach(l -> l.setState(state));
+    List<MtsLight> savedLight = this.mtsLightRepository.saveAll(lights);
+    return savedLight.stream().map(MtsLight::getState).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
