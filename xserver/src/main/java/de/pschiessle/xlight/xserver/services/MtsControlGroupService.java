@@ -61,4 +61,9 @@ public class MtsControlGroupService {
     return mtsControlGroupRepository.findById(groupId);
   }
 
+
+  @Transactional
+  public void removeControlGroupById(long groupId){
+    mtsControlGroupRepository.deleteById(groupId);
+  }
 }
