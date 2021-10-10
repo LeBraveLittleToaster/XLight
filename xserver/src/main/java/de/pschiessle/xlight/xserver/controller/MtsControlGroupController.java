@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 @RestController
 @RequestMapping("/api")
-
 public class MtsControlGroupController {
 
   final MtsControlGroupService groupService;

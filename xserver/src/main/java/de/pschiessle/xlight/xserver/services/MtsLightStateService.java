@@ -53,7 +53,7 @@ public class MtsLightStateService {
     try {
       mqttService.sendStr(MqttMessageHelper.buildLightStateMsg(light.getMac(), state));
     } catch (MqttException e) {
-      log.error(e.getMessage());
+      log.error("MQTT Service: " + e.getMessage());
     }
     return savedLight.getState();
   }

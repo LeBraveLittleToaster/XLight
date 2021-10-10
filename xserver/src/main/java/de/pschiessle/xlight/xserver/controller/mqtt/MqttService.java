@@ -10,9 +10,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@Component
+@Service
 public class MqttService implements InitializingBean, DisposableBean {
 
   MqttClient client;
@@ -20,7 +21,11 @@ public class MqttService implements InitializingBean, DisposableBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     client = new MqttClient("tcp://192.168.0.103:1883", "Spring Server");
-    client.connect();
+    try {
+      client.connect();
+    }catch (Exception e){
+      log.error("Failed to connect to MQTT server", e);
+    }
   }
 
   public void sendStr(MqttTopicMessage topicMessage) throws MqttException {
