@@ -17,7 +17,10 @@ import lombok.ToString;
 @Builder
 public class MtsLight extends BaseEntity {
 
+  private String lightId;
+
   private String name;
+
   private String location;
 
   private String mac;
@@ -30,7 +33,7 @@ public class MtsLight extends BaseEntity {
 
   private MtsLightState state;
 
-  List<MtsControlGroup> controlGroups;
+  List<String> controlGroupIds;
 
   @Override
   public boolean equals(Object o) {

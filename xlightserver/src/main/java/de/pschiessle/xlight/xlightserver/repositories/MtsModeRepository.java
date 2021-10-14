@@ -8,5 +8,4 @@ public interface MtsModeRepository extends ReactiveMongoRepository<MtsMode, Stri
   Mono<Void> deleteMtsModeByMtsModeId(String mtsModeId);
   Mono<MtsMode> findByMtsModeId(String mtsModeId);
   Mono<MtsMode> findByModeId(long modeId);
-
 }

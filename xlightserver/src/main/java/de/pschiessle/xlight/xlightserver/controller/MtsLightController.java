@@ -56,9 +56,14 @@ public class MtsLightController {
   }
 
   @PutMapping("/lights/{lightId}/set")
-  public ResponseEntity<Void> setLightIsOn(@PathVariable long lightId, @RequestParam boolean isOn) {
-    mtsLightService.setLightIsOn(lightId, isOn);
-    return new ResponseEntity<>(HttpStatus.OK);
+  public Mono<ResponseEntity<MtsLight>> setLightIsOn(@PathVariable String lightId,
+      @RequestParam boolean isOn) {
+    return mtsLightService.setLightIsOn(lightId, isOn)
+        .flatMap(
+            updatedLight -> Mono.just(new ResponseEntity<>(updatedLight, HttpStatus.OK)))
+        .doOnError(e -> {
+          throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+        });
   }
 
   @PutMapping("/lights/{lightId}/state/{modeId}/set")

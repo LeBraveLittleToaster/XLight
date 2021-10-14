@@ -40,8 +40,12 @@ public class MtsLightService {
     }
   }
 
-  public void setLightIsOn(long lightId, boolean isOn) {
-
+  public Mono<MtsLight> setLightIsOn(String lightId, boolean isOn) {
+    Mono<MtsLight> mtsLight = mtsLightRepository.findMtsLightByLightId(lightId);
+    return mtsLight.flatMap(light -> {
+      light.setOn(isOn);
+      return mtsLightRepository.save(light);
+    });
   }
 
   public void setLightPicture(long lightId, byte[] bytes) {
