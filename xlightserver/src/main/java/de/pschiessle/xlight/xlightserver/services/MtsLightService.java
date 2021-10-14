@@ -27,7 +27,8 @@ public class MtsLightService {
 
   public Mono<MtsLight> createLight(MtsLight mtsLight) {
     try {
-      MtsLight mtsLightValidated = MtsLightValidator.validateAddLightObj(mtsLight);
+      MtsLight mtsLightValidated = MtsLightValidator.validateAddLightObj(mtsLight.getName(),
+          mtsLight.getLocation(), mtsLight.getMac(), mtsLight.getSupportedModes());
       return mtsLightRepository.findMtsLightByMac(mtsLightValidated.getMac())
           .hasElement()
           .flatMap(
