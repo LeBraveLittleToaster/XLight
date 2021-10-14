@@ -7,4 +7,5 @@ import reactor.core.publisher.Mono;
 public interface MtsLightRepository extends ReactiveMongoRepository<MtsLight, String> {
   Mono<MtsLight> findMtsLightByMac(String mac);
   Mono<MtsLight> findMtsLightByLightId(String lightId);
+  Mono<Void> deleteByLightId(String lightId);
 }

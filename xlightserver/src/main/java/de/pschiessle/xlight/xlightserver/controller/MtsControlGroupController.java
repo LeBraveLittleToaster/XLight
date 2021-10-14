@@ -38,8 +38,8 @@ public class MtsControlGroupController {
   public ResponseEntity<MtsControlGroup> createControlGroup(
       @RequestBody CreateControlgroupRequest request) {
     try {
-      MtsControlGroup _controlGroup = groupService.createControlGroup(request.name,
-          request.mtsLightIds);
+      MtsControlGroup _controlGroup = groupService.createControlGroup(request.name(),
+          request.mtsLightIds());
       return new ResponseEntity<>(_controlGroup, HttpStatus.CREATED);
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -3,6 +3,7 @@ package de.pschiessle.xlight.xlightserver.controller;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
+import de.pschiessle.xlight.xlightserver.controller.requests.CreateLightRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @CrossOrigin(originPatterns = "*")
@@ -35,19 +37,14 @@ public class MtsLightController {
   }
 
   @GetMapping(value = "/lights", produces = "application/json; charset=utf-8")
-  public ResponseEntity<List<MtsLight>> getLights() {
-    try {
-      List<MtsLight> _lights = mtsLightService.getLights();
-      return new ResponseEntity<>(_lights, HttpStatus.OK);
-    } catch (Exception e) {
-      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  public Flux<MtsLight> getLights() {
+    return mtsLightService.getLights();
   }
 
   @PostMapping("/lights/add")
-  public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody MtsLight mtsLight) {
+  public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody CreateLightRequest req) {
     return mtsLightService
-        .createLight(mtsLight)
+        .createLight(req.name(), req.location(), req.mac(), req.supportedModes())
         .flatMap(createdLight ->
             Mono.just(new ResponseEntity<>(createdLight, HttpStatus.OK)))
         .doOnError(e -> {
