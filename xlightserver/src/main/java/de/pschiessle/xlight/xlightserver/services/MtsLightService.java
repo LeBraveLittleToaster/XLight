@@ -34,7 +34,6 @@ public class MtsLightService {
 
   public Mono<MtsLight> createLight(String name, String location, String mac,
       List<Long> supportedModes) {
-
     try {
       MtsLight mtsLightValidated = MtsLightValidator.validateAddLightObj(name, location, mac,
           supportedModes);

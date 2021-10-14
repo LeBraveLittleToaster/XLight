@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @CrossOrigin(originPatterns = "*")
 @Controller
@@ -30,20 +32,14 @@ public class MtsControlGroupController {
   }
 
   @GetMapping(value = "/control/groups")
-  public ResponseEntity<List<MtsControlGroup>> getAllControlGroups() {
-    return new ResponseEntity<>(groupService.getAllControlGroups(), HttpStatus.OK);
+  public Flux<MtsControlGroup> getAllControlGroups() {
+    return groupService.getAllControlGroups();
   }
 
   @PutMapping(value = "/control/groups/create", produces = "application/json; charset=utf-8")
-  public ResponseEntity<MtsControlGroup> createControlGroup(
+  public Mono<MtsControlGroup> createControlGroup(
       @RequestBody CreateControlgroupRequest request) {
-    try {
-      MtsControlGroup _controlGroup = groupService.createControlGroup(request.name(),
-          request.mtsLightIds());
-      return new ResponseEntity<>(_controlGroup, HttpStatus.CREATED);
-    } catch (Exception e) {
-      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return groupService.createControlGroup(request.name(), request.mtsLightIds());
   }
 
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")

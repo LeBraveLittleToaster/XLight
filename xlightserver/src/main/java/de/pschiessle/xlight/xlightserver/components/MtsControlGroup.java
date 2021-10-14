@@ -17,9 +17,9 @@ import lombok.ToString.Exclude;
 @Builder
 public class MtsControlGroup extends BaseEntity {
 
+  private String controlGroupId;
   private String name;
 
-  @Exclude
-  private List<MtsLight> lights;
+  private List<String> lightIds;
 
 }
