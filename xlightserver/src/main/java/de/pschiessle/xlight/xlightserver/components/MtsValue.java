@@ -20,7 +20,7 @@ public class MtsValue extends BaseEntity {
 
   private Long valueId;
 
-  private List<BigDecimal> values;
+  private List<Double> values;
 
   @Override
   public boolean equals(Object o) {

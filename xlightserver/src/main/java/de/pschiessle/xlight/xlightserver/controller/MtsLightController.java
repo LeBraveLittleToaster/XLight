@@ -4,6 +4,7 @@ import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateLightRequest;
+import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import java.io.IOException;
@@ -45,8 +46,8 @@ public class MtsLightController {
   public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody CreateLightRequest req) {
     return mtsLightService
         .createLight(req.name(), req.location(), req.mac(), req.supportedModes())
-        .flatMap(createdLight ->
-            Mono.just(new ResponseEntity<>(createdLight, HttpStatus.OK)))
+        .map(createdLight ->
+            new ResponseEntity<>(createdLight, HttpStatus.OK))
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
         .doOnError(e -> {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -66,14 +67,16 @@ public class MtsLightController {
   }
 
   @PutMapping("/lights/{lightId}/state/{modeId}/set")
-  public ResponseEntity<MtsLightState> setModeToState(@PathVariable long modeId,
-      @PathVariable long lightId, @RequestBody List<MtsValue> values) {
-    try {
-      MtsLightState curState = mtsLightStateService.updateMtsLightState(lightId, modeId, values);
-      return new ResponseEntity<>(curState, HttpStatus.CREATED);
-    } catch (Exception e) {
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable String modeId,
+      @PathVariable String lightId, @RequestBody SetLightModeRequest req) {
+    return mtsLightStateService.updateMtsLightState(lightId, modeId, req.values())
+        .map(savedState ->
+            new ResponseEntity<>(savedState, HttpStatus.OK))
+        .switchIfEmpty(
+            Mono.just(new ResponseEntity<>(HttpStatus.BAD_REQUEST)))
+        .doOnError(e -> {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        });
   }
 
   @PostMapping(value = "/lights/{lightId}/picture/set")

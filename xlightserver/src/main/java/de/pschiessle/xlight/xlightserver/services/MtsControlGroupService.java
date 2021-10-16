@@ -32,13 +32,15 @@ public class MtsControlGroupService {
   public Mono<MtsControlGroup> addLightIdToControlGroup(String controlGroupId, String lightId) {
     return mtsLightRepository
         .findMtsLightByLightId(lightId)
-        .flatMap(light -> mtsControlGroupRepository
-            .findByControlGroupId(controlGroupId)
-            .flatMap(controlGroup -> {
-              controlGroup.addLightId(light.getLightId());
-              return mtsControlGroupRepository.save(controlGroup).switchIfEmpty(Mono.empty());
-            })
-            .switchIfEmpty(Mono.empty()))
+        .flatMap(light ->
+            mtsControlGroupRepository
+                .findByControlGroupId(controlGroupId)
+                .flatMap(controlGroup ->
+                    mtsControlGroupRepository
+                        .save(controlGroup.addLightId(light.getLightId()))
+                        .switchIfEmpty(Mono.empty())
+                )
+                .switchIfEmpty(Mono.empty()))
         .switchIfEmpty(Mono.empty());
   }
 
@@ -46,12 +48,11 @@ public class MtsControlGroupService {
       String lightId) {
     return mtsControlGroupRepository
         .findByControlGroupId(controlGroupId)
-        .flatMap(controlGroup -> {
-          controlGroup.removeLightId(lightId);
-          return mtsControlGroupRepository
-              .save(controlGroup)
-              .switchIfEmpty(Mono.empty());
-        })
+        .flatMap(controlGroup ->
+            mtsControlGroupRepository
+                .save(controlGroup.removeLightId(lightId))
+                .switchIfEmpty(Mono.empty())
+        )
         .switchIfEmpty(Mono.empty());
   }
 
