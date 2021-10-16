@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,9 +36,12 @@ public class MtsControlGroupController {
   }
 
   @PutMapping(value = "/control/groups/create", produces = "application/json; charset=utf-8")
-  public Mono<MtsControlGroup> createControlGroup(
+  public Mono<ResponseEntity<MtsControlGroup>> createControlGroup(
       @RequestBody CreateControlgroupRequest request) {
-    return groupService.createControlGroup(request.name(), request.mtsLightIds());
+    return groupService
+        .createControlGroup(request.name(), request.mtsLightIds())
+        .map(ResponseEntity::ok)
+        .defaultIfEmpty(ResponseEntity.badRequest().build());
   }
 
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")

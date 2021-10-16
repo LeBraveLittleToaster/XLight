@@ -47,8 +47,9 @@ public class MtsLightController {
         .createLight(req.name(), req.location(), req.mac(), req.supportedModes())
         .flatMap(createdLight ->
             Mono.just(new ResponseEntity<>(createdLight, HttpStatus.OK)))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
         .doOnError(e -> {
-          throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         });
   }
 
@@ -58,8 +59,9 @@ public class MtsLightController {
     return mtsLightService.setLightIsOn(lightId, isOn)
         .flatMap(
             updatedLight -> Mono.just(new ResponseEntity<>(updatedLight, HttpStatus.OK)))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
         .doOnError(e -> {
-          throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         });
   }
 
