@@ -39,7 +39,7 @@ public class MtsModeController {
         .createMode(mtsMode.getModeId(), mtsMode.getName(), mtsMode.getInputs())
         .flatMap(
             mode -> Mono.just(new ResponseEntity<>(mode, HttpStatus.OK)))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
         .doOnError(e -> {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         });

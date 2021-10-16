@@ -59,7 +59,7 @@ public class MtsLightController {
     return mtsLightService.setLightIsOn(lightId, isOn)
         .flatMap(
             updatedLight -> Mono.just(new ResponseEntity<>(updatedLight, HttpStatus.OK)))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND))
         .doOnError(e -> {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         });

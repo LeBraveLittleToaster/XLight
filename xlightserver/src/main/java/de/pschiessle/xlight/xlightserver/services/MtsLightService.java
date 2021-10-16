@@ -52,7 +52,6 @@ public class MtsLightService {
 
 
   public Mono<MtsLight> setLightIsOn(String lightId, boolean isOn) {
-
     Mono<MtsLight> mtsLight = mtsLightRepository.findMtsLightByLightId(lightId);
     return mtsLight
         .flatMap(light -> {
