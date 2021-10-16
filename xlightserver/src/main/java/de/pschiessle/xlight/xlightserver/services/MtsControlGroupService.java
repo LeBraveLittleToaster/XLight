@@ -1,9 +1,11 @@
 package de.pschiessle.xlight.xlightserver.services;
 
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
+import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsControlGroupRepository;
+import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsControlGroupValidator;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -14,14 +16,43 @@ import reactor.core.publisher.Mono;
 public class MtsControlGroupService {
 
   final MtsControlGroupRepository mtsControlGroupRepository;
+  final MtsLightRepository mtsLightRepository;
 
   public MtsControlGroupService(
-      MtsControlGroupRepository mtsControlGroupRepository) {
+      MtsControlGroupRepository mtsControlGroupRepository,
+      MtsLightRepository mtsLightRepository) {
     this.mtsControlGroupRepository = mtsControlGroupRepository;
+    this.mtsLightRepository = mtsLightRepository;
   }
 
-  public Mono<MtsControlGroup> getControlGroupByControlGroupId(String controlGroupId){
+  public Mono<MtsControlGroup> getControlGroupByControlGroupId(String controlGroupId) {
     return mtsControlGroupRepository.findByControlGroupId(controlGroupId);
+  }
+
+  public Mono<MtsControlGroup> addLightIdToControlGroup(String controlGroupId, String lightId) {
+    return mtsLightRepository
+        .findMtsLightByLightId(lightId)
+        .flatMap(light -> mtsControlGroupRepository
+            .findByControlGroupId(controlGroupId)
+            .flatMap(controlGroup -> {
+              controlGroup.addLightId(light.getLightId());
+              return mtsControlGroupRepository.save(controlGroup).switchIfEmpty(Mono.empty());
+            })
+            .switchIfEmpty(Mono.empty()))
+        .switchIfEmpty(Mono.empty());
+  }
+
+  public Mono<MtsControlGroup> removeLightIdFromControlGroup(String controlGroupId,
+      String lightId) {
+    return mtsControlGroupRepository
+        .findByControlGroupId(controlGroupId)
+        .flatMap(controlGroup -> {
+          controlGroup.removeLightId(lightId);
+          return mtsControlGroupRepository
+              .save(controlGroup)
+              .switchIfEmpty(Mono.empty());
+        })
+        .switchIfEmpty(Mono.empty());
   }
 
   public Flux<MtsControlGroup> getAllControlGroups() {

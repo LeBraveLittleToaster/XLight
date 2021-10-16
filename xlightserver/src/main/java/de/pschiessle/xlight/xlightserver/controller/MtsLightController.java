@@ -41,7 +41,7 @@ public class MtsLightController {
     return mtsLightService.getLights();
   }
 
-  @PostMapping("/lights/add")
+  @PostMapping("/lights/create")
   public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody CreateLightRequest req) {
     return mtsLightService
         .createLight(req.name(), req.location(), req.mac(), req.supportedModes())

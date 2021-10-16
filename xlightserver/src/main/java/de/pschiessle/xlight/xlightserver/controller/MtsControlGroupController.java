@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -42,6 +43,18 @@ public class MtsControlGroupController {
         .createControlGroup(request.name(), request.mtsLightIds())
         .map(ResponseEntity::ok)
         .defaultIfEmpty(ResponseEntity.badRequest().build());
+  }
+
+  @GetMapping(value = "/control/groups/{groupId}/add/{lightId}")
+  public Mono<ResponseEntity<MtsControlGroup>> addLightIdToControlGroup(@PathVariable String groupId,
+      @PathVariable String lightId){
+    return groupService
+        .addLightIdToControlGroup(groupId, lightId)
+        .map(ResponseEntity::ok)
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
+        .doOnError(e -> {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        });
   }
 
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")

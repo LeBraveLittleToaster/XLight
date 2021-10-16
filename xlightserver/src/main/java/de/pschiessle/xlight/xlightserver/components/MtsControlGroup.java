@@ -22,4 +22,17 @@ public class MtsControlGroup extends BaseEntity {
 
   private List<String> lightIds;
 
+  public MtsControlGroup addLightId(String lightId) {
+    if (lightIds == null) {
+      lightIds = List.of(lightId);
+    } else if (!lightIds.contains(lightId)) {
+      lightIds.add(lightId);
+    }
+    return this;
+  }
+
+  public  MtsControlGroup removeLightId(String lightId){
+    if(lightIds != null) lightIds.remove(lightId);
+    return this;
+  }
 }
