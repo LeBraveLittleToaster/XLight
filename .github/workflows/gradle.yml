@@ -5,9 +5,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ feature-neo4j-mongodb ]
+    branches: [ main ]
   pull_request:
-    branches: [ feature-neo4j-mongodb ]
+    branches: [ main ]
 
 jobs:
   build:
