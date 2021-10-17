@@ -18,6 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class MtsMood extends BaseEntity {
 
+  private String name;
   private String moodId;
   private List<MtsManipulator> manipulatorList;
 }

@@ -1,15 +1,23 @@
 package de.pschiessle.xlight.xlightserver.services;
 
+import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
+import de.pschiessle.xlight.xlightserver.components.MtsManipulator;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.exceptions.IndexMissmatchException;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 @Service
 @Slf4j
@@ -23,6 +31,12 @@ public class MtsLightStateService {
       MtsModeRepository mtsModeRepository) {
     this.mtsLightRepository = mtsLightRepository;
     this.mtsModeRepository = mtsModeRepository;
+  }
+
+  public Mono<List<MtsManipulator>> updateLightStateByManipulators(
+      List<MtsManipulator> manipulatorList) {
+    //TODO
+    return Mono.empty();
   }
 
   public Mono<MtsLightState> updateMtsLightState(String lightId, String mtsModeId,
