@@ -1,5 +1,7 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
+import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
@@ -20,7 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
-public class UpdateControlGroupStateTest {
+public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
   @Autowired
   MtsLightService mtsLightService;
@@ -31,8 +33,17 @@ public class UpdateControlGroupStateTest {
   @Autowired
   MtsControlGroupService mtsControlGroupService;
 
+  public UpdateControlGroupStateTest(
+      TestDatabaseClearer testDatabaseClearer) {
+    super(testDatabaseClearer);
+  }
+
   @Test
   public void updateMultipleTest() {
+
+    // clear database
+    getTestDatabaseClearer().deleteAllDataInRepositories();
+
     List<MtsLight> lightList = new LinkedList<>();
 
     for (int i = 0; i < 3; i++) {

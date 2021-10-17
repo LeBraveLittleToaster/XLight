@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
+import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
@@ -19,13 +21,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
-public class MtsModeTests {
+public class MtsModeTests extends BaseDatabaseTest {
 
   @Autowired
   MtsModeService mtsModeService;
 
+  public MtsModeTests(TestDatabaseClearer testDatabaseClearer) {
+    super(testDatabaseClearer);
+  }
+
   @Test
   public void storeAndRetrieveDeleteTest() {
+    // clear database
+    getTestDatabaseClearer().deleteAllDataInRepositories();
 
     Optional<MtsMode> failedMode = mtsModeService
         .createMode(0, "name", new LinkedList<>())

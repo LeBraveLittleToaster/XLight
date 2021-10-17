@@ -2,6 +2,8 @@ package de.pschiessle.xlight.xlightserver.mtslight;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
+import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
@@ -19,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class SetLightStateTest {
+public class SetLightStateTest extends BaseDatabaseTest {
 
   @Autowired
   MtsModeService mtsModeService;
@@ -30,10 +32,18 @@ public class SetLightStateTest {
   @Autowired
   MtsLightStateService mtsLightStateService;
 
+  public SetLightStateTest(
+      TestDatabaseClearer testDatabaseClearer) {
+    super(testDatabaseClearer);
+  }
+
 
   @Test
   public void setLightStateTest() throws Throwable {
-    long timeStart = Instant.now().toEpochMilli();
+
+    // clear database
+    getTestDatabaseClearer().deleteAllDataInRepositories();
+
 
     MtsLight light = mtsLightService.createLight("n", "l", "mac", List.of(1L, 2L)).blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
