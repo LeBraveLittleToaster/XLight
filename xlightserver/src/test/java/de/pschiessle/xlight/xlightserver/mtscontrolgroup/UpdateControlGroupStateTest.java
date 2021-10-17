@@ -1,6 +1,5 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
-import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
@@ -15,9 +14,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
@@ -32,14 +31,6 @@ public class UpdateControlGroupStateTest {
   @Autowired
   MtsControlGroupService mtsControlGroupService;
 
-  @Autowired
-  TestDatabaseClearer testDatabaseClearer;
-
-  @BeforeEach
-  public void clearDatabase(){
-    // clear database
-    testDatabaseClearer.deleteAllDataInRepositories();
-  }
 
   @Test
   public void updateMultipleTest() {
@@ -60,7 +51,7 @@ public class UpdateControlGroupStateTest {
 
     assert mtsControlGroup.isPresent();
 
-    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(0, "Mode", List.of(
+    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(99, "Mode", List.of(
         new MtsInput(InputType.SINGLE_DOUBLE, "l1", "ui1"),
         new MtsInput(InputType.RANGE_2_DOUBLE, "l1", "ui1")
     )).blockOptional();

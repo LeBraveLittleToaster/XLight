@@ -22,7 +22,7 @@ dependencies {
 	implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.0.0'
 }
 
 test {

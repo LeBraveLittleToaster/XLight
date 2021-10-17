@@ -1,6 +1,5 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
-import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
@@ -8,7 +7,6 @@ import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,31 +20,16 @@ public class CreateAndAddLightTest {
   @Autowired
   MtsLightService mtsLightService;
 
-  @Autowired
-  TestDatabaseClearer testDatabaseClearer;
-
-  @BeforeEach
-  public void clearDatabase(){
-    // clear database
-    System.out.println("START Deleting db in CreateAndAddLightTest");
-    testDatabaseClearer.deleteAllDataInRepositories();
-    System.out.println("END   Deleting db in CreateAndAddLightTest");
-  }
 
   @Test
   public void addAndRemoveLightIdToGroup() {
 
-    System.out.println("START Creating light0");
-    Optional<MtsLight> light0 = mtsLightService.createLight("name0", "Location0", "mac0",
+    Optional<MtsLight> light0 = mtsLightService.createLight("name0", "Location0", "mac0_c",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light0.isPresent();
-    System.out.println("END   Creating light0");
-
-    System.out.println("START Creating light1");
-    Optional<MtsLight> light1 = mtsLightService.createLight("name1", "Location1", "mac1",
+    Optional<MtsLight> light1 = mtsLightService.createLight("name1", "Location1", "mac1_c",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light1.isPresent();
-    System.out.println("END   Creating light1");
 
     // CREATE CONTROL GROUP
 
@@ -72,7 +55,8 @@ public class CreateAndAddLightTest {
     ));
 
     Optional<MtsControlGroup> removedLightIdGroup = mtsControlGroupService
-        .removeLightIdFromControlGroup(updatedGroup.get().getControlGroupId(), light0.get().getLightId())
+        .removeLightIdFromControlGroup(updatedGroup.get().getControlGroupId(),
+            light0.get().getLightId())
         .blockOptional();
 
     assert removedLightIdGroup.isPresent();
