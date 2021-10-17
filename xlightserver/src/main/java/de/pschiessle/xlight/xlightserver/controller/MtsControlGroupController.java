@@ -3,6 +3,7 @@ package de.pschiessle.xlight.xlightserver.controller;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateControlgroupRequest;
+import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -46,8 +47,9 @@ public class MtsControlGroupController {
   }
 
   @GetMapping(value = "/control/groups/{groupId}/add/{lightId}")
-  public Mono<ResponseEntity<MtsControlGroup>> addLightIdToControlGroup(@PathVariable String groupId,
-      @PathVariable String lightId){
+  public Mono<ResponseEntity<MtsControlGroup>> addLightIdToControlGroup(
+      @PathVariable String groupId,
+      @PathVariable String lightId) {
     return groupService
         .addLightIdToControlGroup(groupId, lightId)
         .map(ResponseEntity::ok)
@@ -58,13 +60,15 @@ public class MtsControlGroupController {
   }
 
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")
-  public ResponseEntity<Void> setStateForControlGroup(@PathVariable long groupId,
-      @PathVariable Long modeId, @RequestBody List<MtsValue> values) {
-    try {
-      groupService.setModeToGroupById(groupId, modeId, values);
-      return new ResponseEntity<>(HttpStatus.OK);
-    } catch (Exception e) {
-      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  public Mono<ResponseEntity<List<String>>> setStateForControlGroup(@PathVariable String groupId,
+      @PathVariable String modeId, @RequestBody SetLightModeRequest lightModeRequest) {
+    return groupService
+        .setModeToGroupById(groupId, modeId, lightModeRequest.values())
+        .map(ResponseEntity::ok)
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
+        .doOnError(e -> {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        });
+
   }
 }
