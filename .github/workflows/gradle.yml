@@ -23,6 +23,8 @@ jobs:
         distribution: 'adopt'
         cache: gradle
     - name: Grant execute permission for gradlew
-      run: chmod +x ./xlightserver/gradlew
+      run: chmod +x gradlew
+      working-directory: xlightserver
     - name: Build with Gradle
-      run: ./xlightserver/gradlew build
+      run: ./gradlew build
+      working-directory: xlightserver
