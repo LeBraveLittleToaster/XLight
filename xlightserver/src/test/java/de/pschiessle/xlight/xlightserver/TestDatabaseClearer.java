@@ -20,11 +20,13 @@ public class TestDatabaseClearer {
   MtsModeRepository mtsModeRepository;
 
   public void deleteAllDataInRepositories(){
+    System.out.println("START DELETE");
     Mono.zip(
         mtsControlGroupRepository.deleteAll(),
         mtsLightRepository.deleteAll(),
         mtsModeRepository.deleteAll()
     ).block();
+    System.out.println("END   DELETE");
   }
 
 }

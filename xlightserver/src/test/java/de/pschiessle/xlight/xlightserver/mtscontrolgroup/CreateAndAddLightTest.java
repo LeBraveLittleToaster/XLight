@@ -28,19 +28,25 @@ public class CreateAndAddLightTest {
   @BeforeEach
   public void clearDatabase(){
     // clear database
+    System.out.println("START Deleting db in CreateAndAddLightTest");
     testDatabaseClearer.deleteAllDataInRepositories();
+    System.out.println("END   Deleting db in CreateAndAddLightTest");
   }
 
   @Test
   public void addAndRemoveLightIdToGroup() {
 
+    System.out.println("START Creating light0");
     Optional<MtsLight> light0 = mtsLightService.createLight("name0", "Location0", "mac0",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light0.isPresent();
+    System.out.println("END   Creating light0");
 
+    System.out.println("START Creating light1");
     Optional<MtsLight> light1 = mtsLightService.createLight("name1", "Location1", "mac1",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light1.isPresent();
+    System.out.println("END   Creating light1");
 
     // CREATE CONTROL GROUP
 
