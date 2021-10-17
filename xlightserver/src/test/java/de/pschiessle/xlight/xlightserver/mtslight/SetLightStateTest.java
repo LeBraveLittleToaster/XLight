@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class SetLightStateTest extends BaseDatabaseTest {
+public class SetLightStateTest {
 
   @Autowired
   MtsModeService mtsModeService;
@@ -32,17 +32,15 @@ public class SetLightStateTest extends BaseDatabaseTest {
   @Autowired
   MtsLightStateService mtsLightStateService;
 
-  public SetLightStateTest(
-      TestDatabaseClearer testDatabaseClearer) {
-    super(testDatabaseClearer);
-  }
+  @Autowired
+  TestDatabaseClearer testDatabaseClearer;
 
 
   @Test
   public void setLightStateTest() throws Throwable {
 
     // clear database
-    getTestDatabaseClearer().deleteAllDataInRepositories();
+    testDatabaseClearer.deleteAllDataInRepositories();
 
 
     MtsLight light = mtsLightService.createLight("n", "l", "mac", List.of(1L, 2L)).blockOptional()
