@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
@@ -13,27 +12,30 @@ import de.pschiessle.xlight.xlightserver.exceptions.NoSufficientDataException;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
-public class MtsModeTests extends BaseDatabaseTest {
+public class MtsModeTests {
 
   @Autowired
   MtsModeService mtsModeService;
 
-  public MtsModeTests(TestDatabaseClearer testDatabaseClearer) {
-    super(testDatabaseClearer);
+  @Autowired
+  TestDatabaseClearer testDatabaseClearer;
+
+  @BeforeEach
+  public void clearDatabase() {
+    // clear database
+    testDatabaseClearer.deleteAllDataInRepositories();
   }
 
   @Test
   public void storeAndRetrieveDeleteTest() {
-    // clear database
-    getTestDatabaseClearer().deleteAllDataInRepositories();
 
     Optional<MtsMode> failedMode = mtsModeService
         .createMode(0, "name", new LinkedList<>())

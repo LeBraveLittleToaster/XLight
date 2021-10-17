@@ -3,33 +3,34 @@ package de.pschiessle.xlight.xlightserver.mtslight;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
-public class MtsLightTests extends BaseDatabaseTest {
+public class MtsLightTests {
 
   @Autowired
   MtsLightService mtsLightService;
 
-  public MtsLightTests(TestDatabaseClearer testDatabaseClearer) {
-    super(testDatabaseClearer);
-  }
+  @Autowired
+  TestDatabaseClearer testDatabaseClearer;
 
+  @BeforeEach
+  public void clearDatabase(){
+    // clear database
+    testDatabaseClearer.deleteAllDataInRepositories();
+  }
 
   @Test
   public void insertMtsLight(){
-    // clear database
-    getTestDatabaseClearer().deleteAllDataInRepositories();
-
 
     MtsLight insertedLight = mtsLightService.createLight("LightName1", "Location1", "Mac1",
         List.of(1L, 2L, 3L, 4L)).block();

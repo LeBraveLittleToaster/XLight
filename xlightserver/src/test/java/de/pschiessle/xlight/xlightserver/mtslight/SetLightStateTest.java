@@ -2,7 +2,6 @@ package de.pschiessle.xlight.xlightserver.mtslight;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.TestDatabaseClearer;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
@@ -13,9 +12,9 @@ import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,13 +34,14 @@ public class SetLightStateTest {
   @Autowired
   TestDatabaseClearer testDatabaseClearer;
 
+  @BeforeEach
+  public void clearDatabase(){
+    // clear database
+    testDatabaseClearer.deleteAllDataInRepositories();
+  }
 
   @Test
   public void setLightStateTest() throws Throwable {
-
-    // clear database
-    testDatabaseClearer.deleteAllDataInRepositories();
-
 
     MtsLight light = mtsLightService.createLight("n", "l", "mac", List.of(1L, 2L)).blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
