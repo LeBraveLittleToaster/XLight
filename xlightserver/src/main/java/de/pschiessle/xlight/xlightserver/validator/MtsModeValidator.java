@@ -7,6 +7,16 @@ import java.util.List;
 
 public class MtsModeValidator {
 
+  /**
+   * Checks if the data is valid to be inserted
+   *
+   * @param modeId human readable, unique modeId, NOT used to request the mode
+   * @param name   name of the mode
+   * @param inputs all defined variables that could be used with that mode
+   * @return MtsMode without uuid (mtsModeId)
+   * @throws NoSufficientDataException if the provided data is not sufficient to be stored in the
+   *                                   database
+   */
   public static MtsMode checkDataForMtsMode(long modeId, String name, List<MtsInput> inputs)
       throws NoSufficientDataException {
     if (name == null || name.length() == 0
