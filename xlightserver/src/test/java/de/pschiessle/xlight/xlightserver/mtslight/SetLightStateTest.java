@@ -12,11 +12,15 @@ import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Flux;
+import reactor.util.function.Tuple3;
+import reactor.util.function.Tuples;
 
 @SpringBootTest
 public class SetLightStateTest {
@@ -27,13 +31,15 @@ public class SetLightStateTest {
   @Autowired
   MtsLightService mtsLightService;
 
+
   @Autowired
   MtsLightStateService mtsLightStateService;
 
   @Test
   public void setLightStateTest() throws Throwable {
 
-    MtsLight light = mtsLightService.createLight("n", "l", "macmac", List.of(1L, 2L)).blockOptional()
+    MtsLight light = mtsLightService.createLight("n", "l", "macmac", List.of(1L, 2L))
+        .blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
 
     MtsMode mode1 = mtsModeService.createMode(1, "N0", List.of(
@@ -61,5 +67,41 @@ public class SetLightStateTest {
         .getLightByLightId(light.getLightId()).blockOptional();
     assert updatedLight.isPresent();
     assertEquals(updatedState.get(), updatedLight.get().getState());
+  }
+
+  @Test
+  public void testMultipleLightUpdate() throws Throwable {
+    MtsLight light0 = mtsLightService.createLight("n0", "l", "emgalul1", List.of(1L, 2L))
+        .blockOptional()
+        .orElseThrow(() -> new Throwable("ERROR"));
+    MtsLight light1 = mtsLightService.createLight("n1", "l", "emgalul2", List.of(1L, 2L))
+        .blockOptional()
+        .orElseThrow(() -> new Throwable("ERROR"));
+
+    MtsMode mode0 = mtsModeService.createMode(1234, "N0", List.of(
+        new MtsInput(InputType.SINGLE_DOUBLE, "j1_1", "ui1_1")
+    )).blockOptional().orElseThrow(() -> new Throwable("ERROR"));
+
+    double value0 = 1.5d;
+    double value1 = 1.5d;
+    Flux<Tuple3<String, String, List<MtsValue>>> updater = Flux.just(
+        Tuples.of(light0.getLightId(), mode0.getMtsModeId(),
+            List.of(new MtsValue(0L, List.of(value0)))),
+        Tuples.of(light1.getLightId(), mode0.getMtsModeId(),
+            List.of(new MtsValue(0L, List.of(value1))))
+    );
+    List<MtsLightState> updatedStates = mtsLightStateService.updateMtsLightStates(
+        updater).collectList().blockOptional().orElseThrow();
+
+    MtsLight retrievedLight0 = mtsLightService.getLightByLightId(light0.getLightId())
+        .blockOptional().orElseThrow();
+    MtsLight retrievedLight1 = mtsLightService.getLightByLightId(light1.getLightId())
+        .blockOptional().orElseThrow();
+
+    assert Objects.equals(updatedStates.get(0), retrievedLight0.getState());
+    assert Objects.equals(updatedStates.get(1), retrievedLight1.getState());
+
+    assert updatedStates.get(0).getValues().get(0).getValues().get(0) == value0;
+    assert updatedStates.get(1).getValues().get(0).getValues().get(0) == value1;
   }
 }

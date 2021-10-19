@@ -1,24 +1,21 @@
 package de.pschiessle.xlight.xlightserver.services;
 
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
-import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
-import de.pschiessle.xlight.xlightserver.exceptions.IndexMissmatchException;
+import de.pschiessle.xlight.xlightserver.exceptions.LightStateUpdateFailedException;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsControlGroupRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsControlGroupValidator;
-import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuples;
 
 @Slf4j
 @Service
@@ -26,14 +23,17 @@ public class MtsControlGroupService {
 
   final MtsControlGroupRepository mtsControlGroupRepository;
   final MtsLightRepository mtsLightRepository;
+  final MtsLightStateService mtsLightStateService;
   final MtsModeRepository mtsModeRepository;
 
   public MtsControlGroupService(
       MtsControlGroupRepository mtsControlGroupRepository,
       MtsLightRepository mtsLightRepository,
+      MtsLightStateService mtsLightStateService,
       MtsModeRepository mtsModeRepository) {
     this.mtsControlGroupRepository = mtsControlGroupRepository;
     this.mtsLightRepository = mtsLightRepository;
+    this.mtsLightStateService = mtsLightStateService;
     this.mtsModeRepository = mtsModeRepository;
   }
 
@@ -82,8 +82,24 @@ public class MtsControlGroupService {
         .onErrorResume(Mono::error);
   }
 
-  public Mono<List<String>> setModeToGroupById(String mtsControlGroupId, String mtsModeId,
+  public Mono<List<MtsLightState>> setModeToGroupById(String mtsControlGroupId, String mtsModeId,
       List<MtsValue> values) {
+    return mtsControlGroupRepository
+        .findByControlGroupId(mtsControlGroupId)
+        .flatMap(mtsControlGroup ->
+            Mono.just(mtsControlGroup
+                .getLightIds()
+                .stream()
+                .map(lightId -> Mono.just(Tuples.of(lightId, mtsModeId, values)))
+                .collect(Collectors.toList())))
+        .flatMap(updaters ->
+            mtsLightStateService
+                .updateMtsLightStates(Flux.mergeSequential(updaters))
+                .collectList())
+        .switchIfEmpty(Mono.error(new LightStateUpdateFailedException(
+            "Failed to found one or more light or the mode")))
+        .onErrorResume(Mono::error);
+    /*
     return Mono.zip(
         mtsControlGroupRepository.findByControlGroupId(mtsControlGroupId),
         mtsModeRepository.findByMtsModeId(mtsModeId)
@@ -103,5 +119,7 @@ public class MtsControlGroupService {
                                         .collect(Collectors.toList())).map(MtsLight::getLightId)
                                 .collectList()))
                 .onErrorResume(Mono::error));
+
+     */
   }
 }

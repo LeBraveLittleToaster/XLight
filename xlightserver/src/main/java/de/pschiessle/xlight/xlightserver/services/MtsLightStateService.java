@@ -6,6 +6,7 @@ import de.pschiessle.xlight.xlightserver.components.MtsManipulator;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.exceptions.IndexMissmatchException;
 import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
+import de.pschiessle.xlight.xlightserver.exceptions.LightStateUpdateFailedException;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
 @Service
@@ -41,9 +43,26 @@ public class MtsLightStateService {
     return Mono.empty();
   }
 
+  /**
+   * @param lightStateUpdaters List( Tuple3(String lightId, String mtsModeId, List(MtsValue)
+   *                           values))
+   * @return
+   */
+  public Flux<MtsLightState> updateMtsLightStates(
+      Flux<Tuple3<String, String, List<MtsValue>>> lightStateUpdaters) {
+    return lightStateUpdaters
+        .flatMap(updater ->
+            updateMtsLightState(
+                updater.getT1(),
+                updater.getT2(),
+                updater.getT3()))
+        .switchIfEmpty(Flux.error(
+            new LightStateUpdateFailedException("Failed to update one or more lightstates")))
+        .onErrorResume(Flux::error);
+  }
+
   public Mono<MtsLightState> updateMtsLightState(String lightId, String mtsModeId,
       List<MtsValue> values) {
-
     return mtsModeRepository
         .findByMtsModeId(mtsModeId)
         .flatMap(mode ->
@@ -57,6 +76,5 @@ public class MtsLightStateService {
               .flatMap(savedLight -> Mono.just(savedLight.getState()));
         })
         .onErrorResume(Mono::error);
-
   }
 }

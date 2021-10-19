@@ -4,6 +4,7 @@ import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
+import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
@@ -14,10 +15,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @SpringBootTest
 public class UpdateControlGroupStateTest {
@@ -58,7 +63,7 @@ public class UpdateControlGroupStateTest {
 
     assert mtsModeOptional.isPresent();
 
-    Optional<List<String>> updatedListString = mtsControlGroupService.setModeToGroupById(
+    Optional<List<MtsLightState>> updateLightStates = mtsControlGroupService.setModeToGroupById(
         mtsControlGroup.get().getControlGroupId(),
         mtsModeOptional.get().getMtsModeId(),
         List.of(
@@ -67,24 +72,21 @@ public class UpdateControlGroupStateTest {
         )
     ).blockOptional();
 
-    assert updatedListString.isPresent();
-    assert lightList.stream().map(MtsLight::getLightId).collect(Collectors.toList())
-        .containsAll(updatedListString.get());
+    assert updateLightStates.isPresent();
+    assert lightList.size() == updateLightStates.get().size();
 
-    updatedListString
-        .get()
-        .forEach(lightId -> {
-          Optional<MtsLight> updatedLight = mtsLightService.getLightByLightId(lightId)
-              .blockOptional();
-          assert updatedLight.isPresent();
-          assert Objects.equals(lightId, updatedLight.get().getLightId());
-          assert updatedLight.get().getState().getValues().size() == 2;
-          assert updatedLight.get().getState().getValues().get(0).getValueId() == 0;
-          assert updatedLight.get().getState().getValues().get(0).getValues().get(0) == 0.5;
-          assert updatedLight.get().getState().getValues().get(1).getValueId() == 1;
-          assert updatedLight.get().getState().getValues().get(1).getValues().get(0) == 0d;
-          assert updatedLight.get().getState().getValues().get(1).getValues().get(1) == 1d;
-        });
+    Flux<MtsLight> mtsLightFlux = Flux.mergeSequential(lightList.stream()
+            .map(MtsLight::getLightId)
+            .map(mtsLightService::getLightByLightId).collect(Collectors.toList()))
+        .switchIfEmpty(Flux.error(new Throwable("Failed to load lights")))
+        .onErrorResume(Flux::error);
+
+    List<MtsLight> mtsLights = mtsLightFlux.filter(
+            light -> updateLightStates.get().stream()
+                .anyMatch(state -> Objects.equals(light.getState(), state))).collectList()
+        .blockOptional().orElseThrow();
+
+    assert mtsLights.size() == updateLightStates.get().size();
 
   }
 }
