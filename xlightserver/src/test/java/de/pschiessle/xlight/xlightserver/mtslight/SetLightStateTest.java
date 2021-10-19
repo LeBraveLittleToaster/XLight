@@ -11,6 +11,7 @@ import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -90,8 +91,12 @@ public class SetLightStateTest {
         Tuples.of(light1.getLightId(), mode0.getMtsModeId(),
             List.of(new MtsValue(0L, List.of(value1))))
     );
+
+    long timeStart = Instant.now().toEpochMilli();
     List<MtsLightState> updatedStates = mtsLightStateService.updateMtsLightStates(
         updater).collectList().blockOptional().orElseThrow();
+
+    System.out.println("Took time to update: " + ( Instant.now().toEpochMilli() - timeStart) + " millis");
 
     MtsLight retrievedLight0 = mtsLightService.getLightByLightId(light0.getLightId())
         .blockOptional().orElseThrow();
