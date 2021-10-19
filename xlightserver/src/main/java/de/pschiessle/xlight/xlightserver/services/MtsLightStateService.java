@@ -5,6 +5,7 @@ import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsManipulator;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.exceptions.IndexMissmatchException;
+import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 @Service
 @Slf4j
@@ -41,26 +43,20 @@ public class MtsLightStateService {
 
   public Mono<MtsLightState> updateMtsLightState(String lightId, String mtsModeId,
       List<MtsValue> values) {
-    return mtsLightRepository
-        .findMtsLightByLightId(lightId).switchIfEmpty(Mono.empty())
-        .flatMap(light ->
-            mtsModeRepository
-                .findByMtsModeId(mtsModeId)
-                .flatMap(mode -> {
-                  try {
-                    MtsLightState state = MtsLightStateValidator.validateInsertLightState(mode,
-                        values);
-                    light.setState(state);
-                    return mtsLightRepository
-                        .save(light)
-                        .flatMap(modifiedLight -> Mono.just(modifiedLight.getState()))
-                        .switchIfEmpty(Mono.empty());
-                  } catch (IndexMissmatchException e) {
-                    log.error("State not well defined", e);
-                    return Mono.empty();
-                  }
-                })
-                .switchIfEmpty(Mono.empty())
-        );
+
+    return mtsModeRepository
+        .findByMtsModeId(mtsModeId)
+        .flatMap(mode ->
+            MtsLightStateValidator.validateInsertLightState(mode, values)
+        )
+        .zipWith(mtsLightRepository.findMtsLightByLightId(lightId))
+        .flatMap(stateLightTuple -> {
+          stateLightTuple.getT2().setState(stateLightTuple.getT1());
+          return mtsLightRepository
+              .save(stateLightTuple.getT2())
+              .flatMap(savedLight -> Mono.just(savedLight.getState()));
+        })
+        .onErrorResume(Mono::error);
+
   }
 }

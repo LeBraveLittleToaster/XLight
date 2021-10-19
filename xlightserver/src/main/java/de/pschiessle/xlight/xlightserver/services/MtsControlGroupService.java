@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 @Slf4j
 @Service
@@ -71,15 +73,13 @@ public class MtsControlGroupService {
   }
 
   public Mono<MtsControlGroup> createControlGroup(String name, List<String> mtsLightIds) {
-    try {
-      MtsControlGroup mtsControlGroup = MtsControlGroupValidator.validateInsertControlGroup(name,
-          mtsLightIds);
-      mtsControlGroup.setControlGroupId(IdGenerator.generateUUID());
-      return mtsControlGroupRepository.save(mtsControlGroup);
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      return Mono.error(e);
-    }
+
+    return MtsControlGroupValidator.validateInsertControlGroup(name, mtsLightIds)
+        .flatMap(group -> {
+          group.setControlGroupId(IdGenerator.generateUUID());
+          return mtsControlGroupRepository.save(group);
+        })
+        .onErrorResume(Mono::error);
   }
 
   public Mono<List<String>> setModeToGroupById(String mtsControlGroupId, String mtsModeId,
@@ -88,34 +88,20 @@ public class MtsControlGroupService {
         mtsControlGroupRepository.findByControlGroupId(mtsControlGroupId),
         mtsModeRepository.findByMtsModeId(mtsModeId)
     ).flatMap(
-        groupModeTuple -> {
-          try {
-            MtsLightState state = MtsLightStateValidator.validateInsertLightState(
-                groupModeTuple.getT2(), values);
-            return mtsLightRepository
-                .findAllByLightIdIn(groupModeTuple.getT1().getLightIds())
-                .collectList()
-                .flatMap(lightsToUpdate ->
-                    mtsLightRepository.saveAll(
-                        lightsToUpdate
-                            .stream()
-                            .peek(light -> light.setState(state))
-                            .collect(Collectors.toList())).map(MtsLight::getLightId).collectList())
-                .switchIfEmpty(Mono.empty())
-                .switchIfEmpty(Mono.empty());
-          } catch (IndexMissmatchException e) {
-            log.error("Failed to validate state", e);
-            return Mono.empty();
-          }
-        }
-    );
-    /*
-    return mtsControlGroupRepository
-        .findByControlGroupId(mtsControlGroupId)
-        .flatMap(group ->
-
-        );
-
-     */
+        groupModeTuple ->
+            MtsLightStateValidator
+                .validateInsertLightState(groupModeTuple.getT2(), values)
+                .flatMap(validatedLightState ->
+                    mtsLightRepository
+                        .findAllByLightIdIn(groupModeTuple.getT1().getLightIds())
+                        .collectList()
+                        .flatMap(lightsToUpdate ->
+                            mtsLightRepository.saveAll(
+                                    lightsToUpdate
+                                        .stream()
+                                        .peek(light -> light.setState(validatedLightState))
+                                        .collect(Collectors.toList())).map(MtsLight::getLightId)
+                                .collectList()))
+                .onErrorResume(Mono::error));
   }
 }

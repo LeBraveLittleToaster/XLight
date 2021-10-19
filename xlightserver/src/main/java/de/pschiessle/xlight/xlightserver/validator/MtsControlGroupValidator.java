@@ -6,16 +6,16 @@ import java.util.List;
 import reactor.core.publisher.Mono;
 
 public class MtsControlGroupValidator {
-  public static MtsControlGroup validateInsertControlGroup(String name, List<String> lightIds)
-      throws NoSuchFieldException {
+  public static Mono<MtsControlGroup> validateInsertControlGroup(String name, List<String> lightIds)
+  {
     if (name == null || name.length() == 0 || lightIds == null ||lightIds.size() == 0) {
-      throw new NoSuchFieldException("Name length zero or lightIds missing");
+      return Mono.error(new NoSuchFieldException("Missing either name or lightIds"));
     }
-    return MtsControlGroup.builder()
+    return Mono.just(MtsControlGroup.builder()
         .name(name)
         .lightIds(lightIds)
         .lightIds(lightIds)
-        .build();
+        .build());
   }
 
 }

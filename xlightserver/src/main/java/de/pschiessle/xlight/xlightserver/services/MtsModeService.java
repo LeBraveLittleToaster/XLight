@@ -36,21 +36,21 @@ public class MtsModeService {
   }
 
   public Mono<MtsMode> createMode(long modeId, String name, List<MtsInput> inputs) {
-    try {
-      MtsMode mtsModeValidated = MtsModeValidator.checkDataForMtsMode(modeId, name, inputs);
 
-      mtsModeValidated.setMtsModeId(IdGenerator.generateUUID());
-      mtsModeValidated.setChangeDateUTC(Instant.now().getEpochSecond());
-
-      return mtsModeRepository.findByModeId(modeId)
-          .hasElement()
-          .flatMap(
-              hasElement -> hasElement ? Mono.error(
-                  new DuplicateKeyException("Mode ID already present"))
-                  : mtsModeRepository.save(mtsModeValidated));
-    } catch (NoSufficientDataException e) {
-      return Mono.error(e);
-    }
+    return MtsModeValidator.checkDataForMtsMode(modeId, name, inputs)
+        .flatMap(mtsModeValidated -> {
+          mtsModeValidated.setMtsModeId(IdGenerator.generateUUID());
+          mtsModeValidated.setChangeDateUTC(Instant.now().getEpochSecond());
+          return Mono.just(mtsModeValidated);
+        })
+        .flatMap(mtsModeValidated ->
+            mtsModeRepository.findByModeId(modeId)
+                .hasElement()
+                .flatMap(hasElement -> hasElement ?
+                    Mono.error(new DuplicateKeyException("Mode ID already present"))
+                    : mtsModeRepository.save(mtsModeValidated)))
+        .switchIfEmpty(Mono.error(new Throwable("Not able to insert mode, cause unknown")))
+        .onErrorResume(Mono::error);
   }
 
   public Mono<Void> deleteByMtsModeId(String mtsModeId) {

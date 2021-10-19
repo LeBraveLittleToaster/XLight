@@ -5,14 +5,15 @@ import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.exceptions.NoSufficientDataException;
 import java.util.ArrayList;
 import java.util.List;
+import reactor.core.publisher.Mono;
 
 public class MtsLightValidator {
 
-  public static MtsLight validateAddLightObj(String name, String location, String mac,
-      List<Long> supportedModes) throws NoSufficientDataException {
+  public static Mono<MtsLight> validateAddLightObj(String name, String location, String mac,
+      List<Long> supportedModes) {
     if (name.equals("") || location.equals("") || mac.equals("")
         || supportedModes == null) {
-      throw new NoSufficientDataException("Name, Location or mac address empty");
+      return Mono.error(new NoSufficientDataException("Name, Location or mac address empty"));
     }
     MtsLight light = MtsLight
         .builder()
@@ -28,7 +29,7 @@ public class MtsLightValidator {
     state.setModeId(-1);
     state.setValues(new ArrayList<>());
     light.setState(state);
-    return light;
+    return Mono.just(light);
   }
 
 }
