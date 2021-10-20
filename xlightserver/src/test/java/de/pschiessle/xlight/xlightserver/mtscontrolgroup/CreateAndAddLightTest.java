@@ -1,5 +1,6 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
@@ -11,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-public class CreateAndAddLightTest {
+public class CreateAndAddLightTest extends BaseDatabaseTest {
 
   @Autowired
   MtsControlGroupService mtsControlGroupService;
@@ -24,10 +24,10 @@ public class CreateAndAddLightTest {
   @Test
   public void addAndRemoveLightIdToGroup() {
 
-    Optional<MtsLight> light0 = mtsLightService.createLight("name0", "Location0", "mac0_c",
+    Optional<MtsLight> light0 = mtsLightService.createLight("name0", "Location0", "mac0",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light0.isPresent();
-    Optional<MtsLight> light1 = mtsLightService.createLight("name1", "Location1", "mac1_c",
+    Optional<MtsLight> light1 = mtsLightService.createLight("name1", "Location1", "mac1",
         List.of(1L, 2L, 3L, 4L)).blockOptional();
     assert light1.isPresent();
 

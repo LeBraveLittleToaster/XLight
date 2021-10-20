@@ -1,5 +1,6 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
@@ -24,8 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@SpringBootTest
-public class UpdateControlGroupStateTest {
+public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
   @Autowired
   MtsLightService mtsLightService;

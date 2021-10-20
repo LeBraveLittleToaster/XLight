@@ -2,6 +2,7 @@ package de.pschiessle.xlight.xlightserver.mtslight;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
@@ -23,8 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
-@SpringBootTest
-public class SetLightStateTest {
+public class SetLightStateTest extends BaseDatabaseTest {
 
   @Autowired
   MtsModeService mtsModeService;
@@ -39,7 +39,7 @@ public class SetLightStateTest {
   @Test
   public void setLightStateTest() throws Throwable {
 
-    MtsLight light = mtsLightService.createLight("n", "l", "macmac", List.of(1L, 2L))
+    MtsLight light = mtsLightService.createLight("n", "l", "mac0", List.of(1L, 2L))
         .blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
 
@@ -72,10 +72,10 @@ public class SetLightStateTest {
 
   @Test
   public void testMultipleLightUpdate() throws Throwable {
-    MtsLight light0 = mtsLightService.createLight("n0", "l", "emgalul1", List.of(1L, 2L))
+    MtsLight light0 = mtsLightService.createLight("n0", "l", "mac0", List.of(1L, 2L))
         .blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
-    MtsLight light1 = mtsLightService.createLight("n1", "l", "emgalul2", List.of(1L, 2L))
+    MtsLight light1 = mtsLightService.createLight("n1", "l", "mac1", List.of(1L, 2L))
         .blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
 

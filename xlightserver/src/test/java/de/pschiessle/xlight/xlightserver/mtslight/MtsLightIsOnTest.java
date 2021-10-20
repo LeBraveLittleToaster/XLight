@@ -1,5 +1,6 @@
 package de.pschiessle.xlight.xlightserver.mtslight;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import java.util.List;
@@ -10,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-public class MtsLightIsOnTest {
+
+public class MtsLightIsOnTest extends BaseDatabaseTest {
 
   @Autowired
   MtsLightService mtsLightService;
@@ -19,7 +20,7 @@ public class MtsLightIsOnTest {
   @Test
   public void setIsOnTest() {
 
-    Optional<MtsLight> light = mtsLightService.createLight("Name1", "Location1", "MacMacGo1",
+    Optional<MtsLight> light = mtsLightService.createLight("Name1", "Location1", "mac0",
         List.of(1L, 2L)).blockOptional();
 
     assert light.isPresent();

@@ -3,6 +3,7 @@ package de.pschiessle.xlight.xlightserver.mtslight;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import java.util.List;
@@ -13,15 +14,15 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
-@SpringBootTest
-public class MtsLightTests {
+
+public class MtsLightTests extends BaseDatabaseTest {
 
   @Autowired
   MtsLightService mtsLightService;
 
   @Test
   public void insertMtsLight(){
-    MtsLight insertedLight = mtsLightService.createLight("LightName1", "Location1", "TestMac1",
+    MtsLight insertedLight = mtsLightService.createLight("LightName1", "Location1", "mac0",
         List.of(1L, 2L, 3L, 4L)).block();
 
     assert insertedLight != null;
