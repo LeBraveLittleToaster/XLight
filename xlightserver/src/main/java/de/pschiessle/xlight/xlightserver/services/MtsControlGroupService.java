@@ -99,27 +99,6 @@ public class MtsControlGroupService {
         .switchIfEmpty(Mono.error(new LightStateUpdateFailedException(
             "Failed to found one or more light or the mode")))
         .onErrorResume(Mono::error);
-    /*
-    return Mono.zip(
-        mtsControlGroupRepository.findByControlGroupId(mtsControlGroupId),
-        mtsModeRepository.findByMtsModeId(mtsModeId)
-    ).flatMap(
-        groupModeTuple ->
-            MtsLightStateValidator
-                .validateInsertLightState(groupModeTuple.getT2(), values)
-                .flatMap(validatedLightState ->
-                    mtsLightRepository
-                        .findAllByLightIdIn(groupModeTuple.getT1().getLightIds())
-                        .collectList()
-                        .flatMap(lightsToUpdate ->
-                            mtsLightRepository.saveAll(
-                                    lightsToUpdate
-                                        .stream()
-                                        .peek(light -> light.setState(validatedLightState))
-                                        .collect(Collectors.toList())).map(MtsLight::getLightId)
-                                .collectList()))
-                .onErrorResume(Mono::error));
-
-     */
+    
   }
 }
