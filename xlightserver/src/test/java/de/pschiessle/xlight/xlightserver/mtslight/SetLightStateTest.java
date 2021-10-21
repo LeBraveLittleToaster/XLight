@@ -50,7 +50,7 @@ public class SetLightStateTest extends BaseDatabaseTest {
 
     Optional<MtsLightState> updatedState = mtsLightStateService.updateMtsLightState(
         light.getLightId(),
-        mode1.getMtsModeId(),
+        mode1.getModeId(),
         List.of(
             new MtsValue(0L, List.of(1.1d, 1.2d, 1.3d, 1.4d)),
             new MtsValue(1L, List.of(2.1d, 2.2d, 2.3d, 2.4d))
@@ -85,10 +85,10 @@ public class SetLightStateTest extends BaseDatabaseTest {
 
     double value0 = 1.5d;
     double value1 = 1.5d;
-    Flux<Tuple3<String, String, List<MtsValue>>> updater = Flux.just(
-        Tuples.of(light0.getLightId(), mode0.getMtsModeId(),
+    Flux<Tuple3<String, Long, List<MtsValue>>> updater = Flux.just(
+        Tuples.of(light0.getLightId(), mode0.getModeId(),
             List.of(new MtsValue(0L, List.of(value0)))),
-        Tuples.of(light1.getLightId(), mode0.getMtsModeId(),
+        Tuples.of(light1.getLightId(), mode0.getModeId(),
             List.of(new MtsValue(0L, List.of(value1))))
     );
 

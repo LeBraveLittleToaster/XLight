@@ -16,14 +16,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
@@ -65,7 +60,7 @@ public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
     Optional<List<MtsLightState>> updateLightStates = mtsControlGroupService.setModeToGroupById(
         mtsControlGroup.get().getControlGroupId(),
-        mtsModeOptional.get().getMtsModeId(),
+        mtsModeOptional.get().getModeId(),
         List.of(
             new MtsValue(0L, List.of(0.5)),
             new MtsValue(1L, List.of(0d, 1d))

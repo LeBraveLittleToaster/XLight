@@ -67,7 +67,7 @@ public class MtsLightController {
   }
 
   @PutMapping("/lights/{lightId}/state/{modeId}/set")
-  public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable String modeId,
+  public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable long modeId,
       @PathVariable String lightId, @RequestBody SetLightModeRequest req) {
     return mtsLightStateService.updateMtsLightState(lightId, modeId, req.values())
         .map(savedState ->

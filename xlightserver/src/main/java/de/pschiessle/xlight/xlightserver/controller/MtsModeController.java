@@ -1,7 +1,5 @@
 package de.pschiessle.xlight.xlightserver.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
 import org.springframework.http.HttpStatus;

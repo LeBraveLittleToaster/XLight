@@ -1,25 +1,18 @@
 package de.pschiessle.xlight.xlightserver.services;
 
-import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsManipulator;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
-import de.pschiessle.xlight.xlightserver.exceptions.IndexMissmatchException;
-import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
 import de.pschiessle.xlight.xlightserver.exceptions.LightStateUpdateFailedException;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
@@ -37,10 +30,14 @@ public class MtsLightStateService {
     this.mtsModeRepository = mtsModeRepository;
   }
 
-  public Mono<List<MtsManipulator>> updateLightStateByManipulators(
+  public Flux<MtsLightState> updateLightStateByManipulators(
       List<MtsManipulator> manipulatorList) {
-    //TODO
-    return Mono.empty();
+    List<Mono<Tuple3<String, Long, List<MtsValue>>>> updaters = manipulatorList
+        .stream()
+        .map(m -> Mono.just(
+            Tuples.of(m.getLightId(), m.getState().getModeId(), m.getState().getValues())))
+        .collect(Collectors.toList());
+    return updateMtsLightStates(Flux.mergeSequential(updaters));
   }
 
   /**
@@ -49,7 +46,7 @@ public class MtsLightStateService {
    * @return
    */
   public Flux<MtsLightState> updateMtsLightStates(
-      Flux<Tuple3<String, String, List<MtsValue>>> lightStateUpdaters) {
+      Flux<Tuple3<String, Long, List<MtsValue>>> lightStateUpdaters) {
     return lightStateUpdaters
         .flatMap(updater ->
             updateMtsLightState(
@@ -61,10 +58,10 @@ public class MtsLightStateService {
         .onErrorResume(Flux::error);
   }
 
-  public Mono<MtsLightState> updateMtsLightState(String lightId, String mtsModeId,
+  public Mono<MtsLightState> updateMtsLightState(String lightId, long modeId,
       List<MtsValue> values) {
     return mtsModeRepository
-        .findByMtsModeId(mtsModeId)
+        .findByModeId(modeId)
         .flatMap(mode ->
             MtsLightStateValidator.validateInsertLightState(mode, values)
         )

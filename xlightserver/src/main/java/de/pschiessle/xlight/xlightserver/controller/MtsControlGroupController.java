@@ -2,7 +2,6 @@ package de.pschiessle.xlight.xlightserver.controller;
 
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
-import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateControlgroupRequest;
 import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
@@ -61,8 +60,9 @@ public class MtsControlGroupController {
   }
 
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")
-  public Mono<ResponseEntity<List<MtsLightState>>> setStateForControlGroup(@PathVariable String groupId,
-      @PathVariable String modeId, @RequestBody SetLightModeRequest lightModeRequest) {
+  public Mono<ResponseEntity<List<MtsLightState>>> setStateForControlGroup(
+      @PathVariable String groupId,
+      @PathVariable long modeId, @RequestBody SetLightModeRequest lightModeRequest) {
     return groupService
         .setModeToGroupById(groupId, modeId, lightModeRequest.values())
         .map(ResponseEntity::ok)
@@ -70,6 +70,5 @@ public class MtsControlGroupController {
         .doOnError(e -> {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         });
-
   }
 }

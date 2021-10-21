@@ -19,7 +19,7 @@ public class MtsMode extends BaseEntity {
 
   private String mtsModeId;
 
-  private long modeId;
+  private Long modeId;
 
   private String name;
 

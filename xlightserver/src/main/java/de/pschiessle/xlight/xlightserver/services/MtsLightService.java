@@ -1,7 +1,7 @@
 package de.pschiessle.xlight.xlightserver.services;
 
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
-import de.pschiessle.xlight.xlightserver.exceptions.NoSufficientDataException;
+import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightValidator;
@@ -52,12 +52,15 @@ public class MtsLightService {
 
 
   public Mono<MtsLight> setLightIsOn(String lightId, boolean isOn) {
-    Mono<MtsLight> mtsLight = mtsLightRepository.findMtsLightByLightId(lightId);
-    return mtsLight
+    return mtsLightRepository
+        .findMtsLightByLightId(lightId)
         .flatMap(light -> {
           light.setOn(isOn);
           return mtsLightRepository.save(light);
-        });
+        })
+        .switchIfEmpty(
+            Mono.error(new LightNotFoundException("No light with lightId=" + lightId + " found")))
+        .onErrorResume(Mono::error);
   }
 
   public Mono<Void> deleteLightByLightId(String lightId) {
