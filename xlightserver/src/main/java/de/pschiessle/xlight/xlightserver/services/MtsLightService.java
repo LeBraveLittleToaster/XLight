@@ -4,7 +4,6 @@ import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
-import de.pschiessle.xlight.xlightserver.validator.MtsLightValidator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -35,8 +34,14 @@ public class MtsLightService {
   public Mono<MtsLight> createLight(String name, String location, String mac,
       List<Long> supportedModes) {
 
-    return MtsLightValidator
-        .validateAddLightObj(name, location, mac, supportedModes)
+    return Mono.just(
+            MtsLight.builder()
+                .lightId(IdGenerator.generateUUID())
+                .name(name)
+                .location(location)
+                .mac(mac)
+                .supportedModes(supportedModes)
+                .build())
         .flatMap(validatedLight -> {
           validatedLight.setLightId(IdGenerator.generateUUID());
           return mtsLightRepository.findMtsLightByMac(validatedLight.getMac())
