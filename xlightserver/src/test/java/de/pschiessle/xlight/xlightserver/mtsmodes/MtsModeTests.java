@@ -28,16 +28,6 @@ public class MtsModeTests extends BaseDatabaseTest {
   @Test
   public void storeAndRetrieveDeleteTest() {
 
-    Optional<MtsMode> failedMode = mtsModeService
-        .createMode(0, "name", new LinkedList<>())
-        .onErrorResume(x -> {
-          assert x instanceof NoSufficientDataException;
-          System.out.println("Error occured as expected, Error is type NoSufficiantData");
-          return Mono.empty();
-        }).blockOptional();
-
-    failedMode.ifPresent(e -> fail());
-
     List<MtsInput> initMtsInputs = List.of(
         new MtsInput(InputType.HSVB, "J1", "Ui1"),
         new MtsInput(InputType.SINGLE_DOUBLE, "J2", "Ui2"),
