@@ -2,10 +2,8 @@ package de.pschiessle.xlight.xlightserver.services;
 
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
-import de.pschiessle.xlight.xlightserver.exceptions.NoSufficientDataException;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
-import de.pschiessle.xlight.xlightserver.validator.MtsModeValidator;
 import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,13 @@ public class MtsModeService {
 
   public Mono<MtsMode> createMode(long modeId, String name, List<MtsInput> inputs) {
 
-    return MtsModeValidator.checkDataForMtsMode(modeId, name, inputs)
+    return Mono.just(MtsMode.builder()
+            .modeId(modeId)
+            .name(name)
+            .inputs(inputs)
+            .mtsModeId(IdGenerator.generateUUID())
+            .changeDateUTC(Instant.now().toEpochMilli())
+            .build())
         .flatMap(mtsModeValidated -> {
           mtsModeValidated.setMtsModeId(IdGenerator.generateUUID());
           mtsModeValidated.setChangeDateUTC(Instant.now().getEpochSecond());

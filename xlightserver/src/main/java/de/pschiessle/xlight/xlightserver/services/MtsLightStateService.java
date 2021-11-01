@@ -6,7 +6,6 @@ import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.exceptions.LightStateUpdateFailedException;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.repositories.MtsModeRepository;
-import de.pschiessle.xlight.xlightserver.validator.MtsLightStateValidator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +62,11 @@ public class MtsLightStateService {
     return mtsModeRepository
         .findByModeId(modeId)
         .flatMap(mode ->
-            MtsLightStateValidator.validateInsertLightState(mode, values)
-        )
+            Mono.just(MtsLightState
+                .builder()
+                .modeId(modeId)
+                .values(values)
+                .build()))
         .zipWith(mtsLightRepository.findMtsLightByLightId(lightId))
         .flatMap(stateLightTuple -> {
           stateLightTuple.getT2().setState(stateLightTuple.getT1());

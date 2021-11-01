@@ -10,6 +10,7 @@ import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,7 +44,7 @@ public class MtsLightController {
   }
 
   @PostMapping("/lights/create")
-  public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody CreateLightRequest req) {
+  public Mono<ResponseEntity<MtsLight>> addLight(@Valid @RequestBody CreateLightRequest req) {
     return mtsLightService
         .createLight(req.name(), req.location(), req.mac(), req.supportedModes())
         .map(createdLight ->
@@ -68,7 +69,7 @@ public class MtsLightController {
 
   @PutMapping("/lights/{lightId}/state/{modeId}/set")
   public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable long modeId,
-      @PathVariable String lightId, @RequestBody SetLightModeRequest req) {
+      @PathVariable String lightId, @Valid @RequestBody SetLightModeRequest req) {
     return mtsLightStateService.updateMtsLightState(lightId, modeId, req.values())
         .map(savedState ->
             new ResponseEntity<>(savedState, HttpStatus.OK))

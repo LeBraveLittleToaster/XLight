@@ -5,16 +5,23 @@ import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateControlgroupRequest;
 import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
@@ -39,7 +46,7 @@ public class MtsControlGroupController {
 
   @PutMapping(value = "/control/groups/create", produces = "application/json; charset=utf-8")
   public Mono<ResponseEntity<MtsControlGroup>> createControlGroup(
-      @RequestBody CreateControlgroupRequest request) {
+      @Valid @RequestBody CreateControlgroupRequest request) {
     return groupService
         .createControlGroup(request.name(), request.mtsLightIds())
         .map(ResponseEntity::ok)
@@ -62,7 +69,7 @@ public class MtsControlGroupController {
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")
   public Mono<ResponseEntity<List<MtsLightState>>> setStateForControlGroup(
       @PathVariable String groupId,
-      @PathVariable long modeId, @RequestBody SetLightModeRequest lightModeRequest) {
+      @PathVariable long modeId, @Valid @RequestBody SetLightModeRequest lightModeRequest) {
     return groupService
         .setModeToGroupById(groupId, modeId, lightModeRequest.values())
         .map(ResponseEntity::ok)
