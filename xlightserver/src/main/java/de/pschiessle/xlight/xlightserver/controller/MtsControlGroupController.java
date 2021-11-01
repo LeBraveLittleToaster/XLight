@@ -69,7 +69,7 @@ public class MtsControlGroupController {
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")
   public Mono<ResponseEntity<List<MtsLightState>>> setStateForControlGroup(
       @PathVariable String groupId,
-      @PathVariable long modeId, @RequestBody SetLightModeRequest lightModeRequest) {
+      @PathVariable long modeId, @Valid @RequestBody SetLightModeRequest lightModeRequest) {
     return groupService
         .setModeToGroupById(groupId, modeId, lightModeRequest.values())
         .map(ResponseEntity::ok)
