@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Input definition for {@link MtsMode}
+ */
 @Getter
 @Setter
 @ToString
@@ -16,12 +19,24 @@ import lombok.ToString;
 @Builder
 public class MtsInput extends BaseEntity {
 
-  public static enum InputType {HSV, HSVB, SINGLE_DOUBLE, RANGE_2_DOUBLE}
+  /**
+   * Available types of Input, each maps to one ui element
+   */
+  public static enum InputType {HSV, HSVB, SINGLE_DOUBLE, RANGE_2_DOUBLE, BOOLEAN}
 
+  /**
+   * Inputtype for this input
+   */
   private InputType inputType;
 
+  /**
+   * key that is used in the MQTT message send to IOT device
+   */
   private String jsonKey;
 
+  /**
+   * label shown in the ui element
+   */
   private String uiLabel;
 
   @Override

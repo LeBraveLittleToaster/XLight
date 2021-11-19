@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Definition for one real IOT device
+ */
 @Getter
 @Setter
 @ToString
@@ -17,22 +20,49 @@ import lombok.ToString;
 @Builder
 public class MtsLight extends BaseEntity {
 
+  /**
+   * unique id (UUID)
+   */
   private String lightId;
 
+  /**
+   * non unique name
+   */
   private String name;
 
+  /**
+   * description of location in real world
+   */
   private String location;
 
+  /**
+   * system wide unique id, mqtt address message is send to /device/"mac"
+   */
   private String mac;
 
+  /**
+   * if light should be turned on completely
+   */
   private boolean isOn;
 
+  /**
+   * Picture of the device
+   */
   private byte[] picture;
 
+  /**
+   * modeIds which are supported by the device
+   */
   private List<Long> supportedModes;
 
+  /**
+   * current state in which the light is
+   */
   private MtsLightState state;
 
+  /**
+   * ids of control group the light is in
+   */
   List<String> controlGroupIds;
 
   @Override

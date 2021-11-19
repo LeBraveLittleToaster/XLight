@@ -9,6 +9,10 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
+/**
+ * Multiple {@link de.pschiessle.xlight.xlightserver.components.MtsLight} are grouped via there
+ * lightIds to assign a Mode to multiple lightIds at once
+ */
 @Getter
 @Setter
 @ToString
@@ -17,9 +21,18 @@ import lombok.ToString.Exclude;
 @Builder
 public class MtsControlGroup extends BaseEntity {
 
+  /**
+   * Unique id
+   */
   private String controlGroupId;
+  /**
+   * non unique name, shown to user
+   */
   private String name;
 
+  /**
+   * unique {@link de.pschiessle.xlight.xlightserver.components.MtsLight} lightId field
+   */
   private List<String> lightIds;
 
   public MtsControlGroup addLightId(String lightId) {
@@ -31,8 +44,10 @@ public class MtsControlGroup extends BaseEntity {
     return this;
   }
 
-  public  MtsControlGroup removeLightId(String lightId){
-    if(lightIds != null) lightIds.remove(lightId);
+  public MtsControlGroup removeLightId(String lightId) {
+    if (lightIds != null) {
+      lightIds.remove(lightId);
+    }
     return this;
   }
 }
