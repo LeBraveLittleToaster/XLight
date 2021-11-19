@@ -2,6 +2,9 @@ package de.pschiessle.xlight.xlightserver.components;
 
 import java.util.List;
 import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,12 +22,17 @@ public class MtsMode extends BaseEntity {
 
   private String mtsModeId;
 
+  @NotNull
   private Long modeId;
 
+  @NotNull
+  @Size(min = 3, max = 30)
   private String name;
 
+  @NotNull
   private long changeDateUTC;
 
+  @NotEmpty
   private List<MtsInput> inputs;
 
   @Override

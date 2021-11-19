@@ -23,7 +23,6 @@ public class MtsLightValidator {
         .mac(mac)
         .supportedModes(supportedModes)
         .location(location)
-        .controlGroupIds(List.of())
         .build();
 
     MtsLightState state = new MtsLightState();

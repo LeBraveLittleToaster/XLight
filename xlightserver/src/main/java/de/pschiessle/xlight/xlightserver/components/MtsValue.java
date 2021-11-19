@@ -3,6 +3,7 @@ package de.pschiessle.xlight.xlightserver.components;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +19,10 @@ import lombok.ToString;
 @Builder
 public class MtsValue extends BaseEntity {
 
+
   private Long valueId;
 
+  @NotEmpty
   private List<Double> values;
 
   @Override

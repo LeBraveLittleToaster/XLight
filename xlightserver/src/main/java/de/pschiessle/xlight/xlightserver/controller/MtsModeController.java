@@ -2,6 +2,7 @@ package de.pschiessle.xlight.xlightserver.controller;
 
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,7 +33,7 @@ public class MtsModeController {
   }
 
   @PutMapping("/modes/create")
-  public Mono<ResponseEntity<MtsMode>> createMode(@RequestBody MtsMode mtsMode) {
+  public Mono<ResponseEntity<MtsMode>> createMode(@Valid @RequestBody MtsMode mtsMode) {
     return mtsModeService
         .createMode(mtsMode.getModeId(), mtsMode.getName(), mtsMode.getInputs())
         .flatMap(

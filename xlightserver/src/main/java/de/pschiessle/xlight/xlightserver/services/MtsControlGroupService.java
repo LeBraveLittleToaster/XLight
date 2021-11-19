@@ -118,6 +118,7 @@ public class MtsControlGroupService {
    */
   public Mono<List<MtsLightState>> setModeToGroupById(String mtsControlGroupId, long modeId,
       List<MtsValue> values) {
+    //TODO: check if lights support modes
     return mtsControlGroupRepository
         .findByControlGroupId(mtsControlGroupId)
         .flatMap(mtsControlGroup ->

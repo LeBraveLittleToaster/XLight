@@ -1,6 +1,10 @@
 package de.pschiessle.xlight.xlightserver.components;
 
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,11 +32,14 @@ public class MtsControlGroup extends BaseEntity {
   /**
    * non unique name, shown to user
    */
+  @NotNull
+  @Size(min = 5, max = 30)
   private String name;
 
   /**
    * unique {@link de.pschiessle.xlight.xlightserver.components.MtsLight} lightId field
    */
+  @NotEmpty
   private List<String> lightIds;
 
   public MtsControlGroup addLightId(String lightId) {

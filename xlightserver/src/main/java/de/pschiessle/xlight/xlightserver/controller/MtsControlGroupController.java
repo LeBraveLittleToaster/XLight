@@ -6,6 +6,7 @@ import de.pschiessle.xlight.xlightserver.controller.requests.CreateControlgroupR
 import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,7 @@ public class MtsControlGroupController {
 
   @PutMapping(value = "/control/groups/create", produces = "application/json; charset=utf-8")
   public Mono<ResponseEntity<MtsControlGroup>> createControlGroup(
-      @RequestBody CreateControlgroupRequest request) {
+      @Valid @RequestBody CreateControlgroupRequest request) {
     return groupService
         .createControlGroup(request.name(), request.mtsLightIds())
         .map(ResponseEntity::ok)
@@ -62,7 +63,8 @@ public class MtsControlGroupController {
   @PostMapping(value = "/control/groups/{groupId}/mode/{modeId}/set")
   public Mono<ResponseEntity<List<MtsLightState>>> setStateForControlGroup(
       @PathVariable String groupId,
-      @PathVariable long modeId, @RequestBody SetLightModeRequest lightModeRequest) {
+      @PathVariable long modeId,
+      @Valid @RequestBody SetLightModeRequest lightModeRequest) {
     return groupService
         .setModeToGroupById(groupId, modeId, lightModeRequest.values())
         .map(ResponseEntity::ok)
