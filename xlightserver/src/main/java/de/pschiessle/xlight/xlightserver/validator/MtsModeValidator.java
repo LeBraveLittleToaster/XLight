@@ -15,8 +15,6 @@ public class MtsModeValidator {
    * @param name   name of the mode
    * @param inputs all defined variables that could be used with that mode
    * @return MtsMode without uuid (mtsModeId)
-   * @throws NoSufficientDataException if the provided data is not sufficient to be stored in the
-   *                                   database
    */
   public static Mono<MtsMode> checkDataForMtsMode(long modeId, String name, List<MtsInput> inputs)
        {
