@@ -79,7 +79,7 @@ public class SetLightStateTest extends BaseDatabaseTest {
         .blockOptional()
         .orElseThrow(() -> new Throwable("ERROR"));
 
-    MtsMode mode0 = mtsModeService.createMode(1234, "N0", List.of(
+    MtsMode mode0 = mtsModeService.createMode(1L, "N0", List.of(
         new MtsInput(InputType.SINGLE_DOUBLE, "j1_1", "ui1_1")
     )).blockOptional().orElseThrow(() -> new Throwable("ERROR"));
 

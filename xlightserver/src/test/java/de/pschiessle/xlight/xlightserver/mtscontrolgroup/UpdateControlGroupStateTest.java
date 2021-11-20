@@ -51,7 +51,7 @@ public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
     assert mtsControlGroup.isPresent();
 
-    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(99, "Mode", List.of(
+    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(2L, "Mode", List.of(
         new MtsInput(InputType.SINGLE_DOUBLE, "l1", "ui1"),
         new MtsInput(InputType.RANGE_2_DOUBLE, "l1", "ui1")
     )).blockOptional();

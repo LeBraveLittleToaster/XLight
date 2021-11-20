@@ -1,5 +1,6 @@
 package de.pschiessle.xlight.xlightserver.services;
 
+import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsManipulator;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
@@ -66,12 +67,19 @@ public class MtsLightStateService {
             MtsLightStateValidator.validateInsertLightState(mode, values)
         )
         .zipWith(mtsLightRepository.findMtsLightByLightId(lightId))
-        .flatMap(stateLightTuple -> {
-          stateLightTuple.getT2().setState(stateLightTuple.getT1());
-          return mtsLightRepository
-              .save(stateLightTuple.getT2())
-              .flatMap(savedLight -> Mono.just(savedLight.getState()));
-        })
+        .flatMap(stateLightTuple -> updateAndSaveLightState(stateLightTuple.getT1(),
+            stateLightTuple.getT2(), modeId))
         .onErrorResume(Mono::error);
+  }
+
+  private Mono<MtsLightState> updateAndSaveLightState(MtsLightState mtsLightState,
+      MtsLight mtsLight, long modeId) {
+    if (mtsLight.getSupportedModes().contains(modeId)) {
+      mtsLight.setState(mtsLightState);
+      return mtsLightRepository
+          .save(mtsLight)
+          .flatMap(savedLight -> Mono.just(savedLight.getState()));
+    }
+    return Mono.error(new LightStateUpdateFailedException("Mode not supported"));
   }
 }

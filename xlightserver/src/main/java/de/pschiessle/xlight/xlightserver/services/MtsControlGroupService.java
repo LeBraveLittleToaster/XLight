@@ -132,6 +132,5 @@ public class MtsControlGroupService {
                 .updateMtsLightStates(Flux.mergeSequential(updaters))
                 .collectList())
         .onErrorResume(Mono::error);
-
   }
 }
