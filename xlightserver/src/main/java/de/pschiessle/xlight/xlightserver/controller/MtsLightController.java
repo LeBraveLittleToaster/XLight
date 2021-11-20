@@ -2,14 +2,13 @@ package de.pschiessle.xlight.xlightserver.controller;
 
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
-import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateLightRequest;
+import de.pschiessle.xlight.xlightserver.controller.requests.SetIsOnRequest;
 import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +54,9 @@ public class MtsLightController {
         });
   }
 
-  @PutMapping("/lights/{lightId}/set")
-  public Mono<ResponseEntity<MtsLight>> setLightIsOn(@PathVariable String lightId,
-      @RequestParam boolean isOn) {
-    return mtsLightService.setLightIsOn(lightId, isOn)
+  @PutMapping("/lights/isOn/set")
+  public Mono<ResponseEntity<MtsLight>> setLightIsOn(@Valid @RequestBody SetIsOnRequest req) {
+    return mtsLightService.setLightIsOn(req.lightId(), req.isOn())
         .flatMap(
             updatedLight -> Mono.just(new ResponseEntity<>(updatedLight, HttpStatus.OK)))
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND))
@@ -67,10 +65,10 @@ public class MtsLightController {
         });
   }
 
-  @PutMapping("/lights/{lightId}/state/{modeId}/set")
-  public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable long modeId,
-      @PathVariable String lightId, @Valid @RequestBody SetLightModeRequest req) {
-    return mtsLightStateService.updateMtsLightState(lightId, modeId, req.values())
+  @PutMapping("/lights/mode/set")
+  public Mono<ResponseEntity<MtsLightState>> setModeToState(
+      @Valid @RequestBody SetLightModeRequest req) {
+    return mtsLightStateService.updateMtsLightState(req.lightId(), req.modeId(), req.values())
         .map(savedState ->
             new ResponseEntity<>(savedState, HttpStatus.OK))
         .switchIfEmpty(
