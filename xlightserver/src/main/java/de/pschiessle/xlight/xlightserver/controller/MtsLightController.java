@@ -2,14 +2,14 @@ package de.pschiessle.xlight.xlightserver.controller;
 
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
 import de.pschiessle.xlight.xlightserver.components.MtsLightState;
-import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.controller.requests.CreateLightRequest;
+import de.pschiessle.xlight.xlightserver.controller.requests.SetIsOnRequest;
 import de.pschiessle.xlight.xlightserver.controller.requests.SetLightModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsLightService;
 import de.pschiessle.xlight.xlightserver.services.MtsLightStateService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,21 +43,20 @@ public class MtsLightController {
   }
 
   @PostMapping("/lights/create")
-  public Mono<ResponseEntity<MtsLight>> addLight(@RequestBody CreateLightRequest req) {
+  public Mono<ResponseEntity<MtsLight>> addLight(@Valid @RequestBody CreateLightRequest req) {
     return mtsLightService
         .createLight(req.name(), req.location(), req.mac(), req.supportedModes())
         .map(createdLight ->
             new ResponseEntity<>(createdLight, HttpStatus.OK))
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))
         .doOnError(e -> {
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         });
   }
 
-  @PutMapping("/lights/{lightId}/set")
-  public Mono<ResponseEntity<MtsLight>> setLightIsOn(@PathVariable String lightId,
-      @RequestParam boolean isOn) {
-    return mtsLightService.setLightIsOn(lightId, isOn)
+  @PutMapping("/lights/isOn/set")
+  public Mono<ResponseEntity<MtsLight>> setLightIsOn(@Valid @RequestBody SetIsOnRequest req) {
+    return mtsLightService.setLightIsOn(req.lightId(), req.isOn())
         .flatMap(
             updatedLight -> Mono.just(new ResponseEntity<>(updatedLight, HttpStatus.OK)))
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND))
@@ -66,10 +65,10 @@ public class MtsLightController {
         });
   }
 
-  @PutMapping("/lights/{lightId}/state/{modeId}/set")
-  public Mono<ResponseEntity<MtsLightState>> setModeToState(@PathVariable String modeId,
-      @PathVariable String lightId, @RequestBody SetLightModeRequest req) {
-    return mtsLightStateService.updateMtsLightState(lightId, modeId, req.values())
+  @PutMapping("/lights/mode/set")
+  public Mono<ResponseEntity<MtsLightState>> setModeToState(
+      @Valid @RequestBody SetLightModeRequest req) {
+    return mtsLightStateService.updateMtsLightState(req.lightId(), req.modeId(), req.values())
         .map(savedState ->
             new ResponseEntity<>(savedState, HttpStatus.OK))
         .switchIfEmpty(

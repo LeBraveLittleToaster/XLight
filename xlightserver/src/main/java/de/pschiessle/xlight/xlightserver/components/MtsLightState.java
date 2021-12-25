@@ -2,6 +2,8 @@ package de.pschiessle.xlight.xlightserver.components;
 
 import java.util.List;
 import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +19,10 @@ import lombok.ToString;
 @Builder
 public class MtsLightState extends BaseEntity {
 
+  @NotNull
   private long modeId;
 
+  @NotEmpty
   private List<MtsValue> values;
 
   @Override

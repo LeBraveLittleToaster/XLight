@@ -1,6 +1,8 @@
 package de.pschiessle.xlight.xlightserver.components;
 
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Input definition for {@link MtsMode}
+ */
 @Getter
 @Setter
 @ToString
@@ -16,12 +21,29 @@ import lombok.ToString;
 @Builder
 public class MtsInput extends BaseEntity {
 
-  public static enum InputType {HSV, HSVB, SINGLE_DOUBLE, RANGE_2_DOUBLE}
+  /**
+   * Available types of Input, each maps to one ui element
+   */
+  public static enum InputType {HSV, HSVB, SINGLE_DOUBLE, RANGE_2_DOUBLE, BOOLEAN}
 
+  /**
+   * Inputtype for this input
+   */
+  @NotNull
   private InputType inputType;
 
+  /**
+   * key that is used in the MQTT message send to IOT device
+   */
+  @NotNull
+  @Size(min = 1, max = 30)
   private String jsonKey;
 
+  /**
+   * label shown in the ui element
+   */
+  @NotNull
+  @Size(min = 1, max = 30)
   private String uiLabel;
 
   @Override

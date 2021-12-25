@@ -1,9 +1,9 @@
 package de.pschiessle.xlight.xlightserver.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
+import de.pschiessle.xlight.xlightserver.controller.requests.CreateModeRequest;
 import de.pschiessle.xlight.xlightserver.services.MtsModeService;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -34,9 +34,9 @@ public class MtsModeController {
   }
 
   @PutMapping("/modes/create")
-  public Mono<ResponseEntity<MtsMode>> createMode(@RequestBody MtsMode mtsMode) {
+  public Mono<ResponseEntity<MtsMode>> createMode(@Valid @RequestBody CreateModeRequest createModeRequest) {
     return mtsModeService
-        .createMode(mtsMode.getModeId(), mtsMode.getName(), mtsMode.getInputs())
+        .createMode(createModeRequest.modeId(), createModeRequest.name(), createModeRequest.inputs())
         .flatMap(
             mode -> Mono.just(new ResponseEntity<>(mode, HttpStatus.OK)))
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.BAD_REQUEST))

@@ -1,9 +1,11 @@
 package de.pschiessle.xlight.xlightserver.mtscontrolgroup;
 
+import de.pschiessle.xlight.xlightserver.BaseDatabaseTest;
 import de.pschiessle.xlight.xlightserver.components.MtsControlGroup;
 import de.pschiessle.xlight.xlightserver.components.MtsInput;
 import de.pschiessle.xlight.xlightserver.components.MtsInput.InputType;
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
+import de.pschiessle.xlight.xlightserver.components.MtsLightState;
 import de.pschiessle.xlight.xlightserver.components.MtsMode;
 import de.pschiessle.xlight.xlightserver.components.MtsValue;
 import de.pschiessle.xlight.xlightserver.services.MtsControlGroupService;
@@ -16,11 +18,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
-@SpringBootTest
-public class UpdateControlGroupStateTest {
+public class UpdateControlGroupStateTest extends BaseDatabaseTest {
 
   @Autowired
   MtsLightService mtsLightService;
@@ -31,8 +31,10 @@ public class UpdateControlGroupStateTest {
   @Autowired
   MtsControlGroupService mtsControlGroupService;
 
+
   @Test
   public void updateMultipleTest() {
+
     List<MtsLight> lightList = new LinkedList<>();
 
     for (int i = 0; i < 3; i++) {
@@ -49,40 +51,37 @@ public class UpdateControlGroupStateTest {
 
     assert mtsControlGroup.isPresent();
 
-    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(0, "Mode", List.of(
+    Optional<MtsMode> mtsModeOptional = mtsModeService.createMode(2L, "Mode", List.of(
         new MtsInput(InputType.SINGLE_DOUBLE, "l1", "ui1"),
         new MtsInput(InputType.RANGE_2_DOUBLE, "l1", "ui1")
     )).blockOptional();
 
     assert mtsModeOptional.isPresent();
 
-    Optional<List<String>> updatedListString = mtsControlGroupService.setModeToGroupById(
+    Optional<List<MtsLightState>> updateLightStates = mtsControlGroupService.setModeToGroupById(
         mtsControlGroup.get().getControlGroupId(),
-        mtsModeOptional.get().getMtsModeId(),
+        mtsModeOptional.get().getModeId(),
         List.of(
             new MtsValue(0L, List.of(0.5)),
             new MtsValue(1L, List.of(0d, 1d))
         )
     ).blockOptional();
 
-    assert updatedListString.isPresent();
-    assert lightList.stream().map(MtsLight::getLightId).collect(Collectors.toList())
-        .containsAll(updatedListString.get());
+    assert updateLightStates.isPresent();
+    assert lightList.size() == updateLightStates.get().size();
 
-    updatedListString
-        .get()
-        .forEach(lightId -> {
-          Optional<MtsLight> updatedLight = mtsLightService.getLightByLightId(lightId)
-              .blockOptional();
-          assert updatedLight.isPresent();
-          assert Objects.equals(lightId, updatedLight.get().getLightId());
-          assert updatedLight.get().getState().getValues().size() == 2;
-          assert updatedLight.get().getState().getValues().get(0).getValueId() == 0;
-          assert updatedLight.get().getState().getValues().get(0).getValues().get(0) == 0.5;
-          assert updatedLight.get().getState().getValues().get(1).getValueId() == 1;
-          assert updatedLight.get().getState().getValues().get(1).getValues().get(0) == 0d;
-          assert updatedLight.get().getState().getValues().get(1).getValues().get(1) == 1d;
-        });
+    Flux<MtsLight> mtsLightFlux = Flux.mergeSequential(lightList.stream()
+            .map(MtsLight::getLightId)
+            .map(mtsLightService::getLightByLightId).collect(Collectors.toList()))
+        .switchIfEmpty(Flux.error(new Throwable("Failed to load lights")))
+        .onErrorResume(Flux::error);
+
+    List<MtsLight> mtsLights = mtsLightFlux.filter(
+            light -> updateLightStates.get().stream()
+                .anyMatch(state -> Objects.equals(light.getState(), state))).collectList()
+        .blockOptional().orElseThrow();
+
+    assert mtsLights.size() == updateLightStates.get().size();
 
   }
 }

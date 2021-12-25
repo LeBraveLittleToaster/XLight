@@ -1,7 +1,7 @@
 package de.pschiessle.xlight.xlightserver.services;
 
 import de.pschiessle.xlight.xlightserver.components.MtsLight;
-import de.pschiessle.xlight.xlightserver.exceptions.NoSufficientDataException;
+import de.pschiessle.xlight.xlightserver.exceptions.LightNotFoundException;
 import de.pschiessle.xlight.xlightserver.generators.IdGenerator;
 import de.pschiessle.xlight.xlightserver.repositories.MtsLightRepository;
 import de.pschiessle.xlight.xlightserver.validator.MtsLightValidator;
@@ -23,7 +23,7 @@ public class MtsLightService {
     this.mtsLightRepository = mtsLightRepository;
   }
 
-  public Mono<MtsLight> getLightByLightId(String lightId){
+  public Mono<MtsLight> getLightByLightId(String lightId) {
     return mtsLightRepository.findMtsLightByLightId(lightId);
   }
 
@@ -32,35 +32,42 @@ public class MtsLightService {
     return mtsLightRepository.findAll();
   }
 
+  public Flux<MtsLight> getLightsByLightIds(List<String> lightIds){
+    return mtsLightRepository.findMtsLightsByLightId(lightIds);
+  }
+
   public Mono<MtsLight> createLight(String name, String location, String mac,
       List<Long> supportedModes) {
-    try {
-      MtsLight mtsLightValidated = MtsLightValidator.validateAddLightObj(name, location, mac,
-          supportedModes);
-      mtsLightValidated.setLightId(IdGenerator.generateUUID());
-      return mtsLightRepository.findMtsLightByMac(mtsLightValidated.getMac())
-          .hasElement()
-          .flatMap(
-              hasElement -> hasElement ? Mono.error(
-                  new DuplicateKeyException("Mac adress already present"))
-                  : mtsLightRepository.save(mtsLightValidated)
-          );
-    } catch (NoSufficientDataException e) {
-      return Mono.error(e);
-    }
+
+    return MtsLightValidator
+        .validateAddLightObj(name, location, mac, supportedModes)
+        .flatMap(validatedLight -> {
+          validatedLight.setLightId(IdGenerator.generateUUID());
+          return mtsLightRepository.findMtsLightByMac(validatedLight.getMac())
+              .hasElement()
+              .flatMap(
+                  hasElement -> hasElement ? Mono.error(
+                      new DuplicateKeyException("Mac adress already present"))
+                      : mtsLightRepository.save(validatedLight)
+              );
+        })
+        .onErrorResume(Mono::error);
   }
 
 
   public Mono<MtsLight> setLightIsOn(String lightId, boolean isOn) {
-    Mono<MtsLight> mtsLight = mtsLightRepository.findMtsLightByLightId(lightId);
-    return mtsLight
+    return mtsLightRepository
+        .findMtsLightByLightId(lightId)
         .flatMap(light -> {
           light.setOn(isOn);
           return mtsLightRepository.save(light);
-        });
+        })
+        .switchIfEmpty(
+            Mono.error(new LightNotFoundException("No light with lightId=" + lightId + " found")))
+        .onErrorResume(Mono::error);
   }
 
-  public Mono<Void> deleteLightByLightId(String lightId){
+  public Mono<Void> deleteLightByLightId(String lightId) {
     return mtsLightRepository.deleteByLightId(lightId);
   }
 
