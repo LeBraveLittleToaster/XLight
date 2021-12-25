@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 public record CreateMoodRequest(
     @NotNull String name,
-    @NotEmpty List<MtsManipulator> manipulatorList
+    @NotEmpty List<String> lightIds
 ) {
 
 }

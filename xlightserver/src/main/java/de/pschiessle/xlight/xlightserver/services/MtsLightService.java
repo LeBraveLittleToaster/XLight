@@ -32,6 +32,10 @@ public class MtsLightService {
     return mtsLightRepository.findAll();
   }
 
+  public Flux<MtsLight> getLightsByLightIds(List<String> lightIds){
+    return mtsLightRepository.findMtsLightsByLightId(lightIds);
+  }
+
   public Mono<MtsLight> createLight(String name, String location, String mac,
       List<Long> supportedModes) {
 
